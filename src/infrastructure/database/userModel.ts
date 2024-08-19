@@ -20,7 +20,6 @@ const userSchema: Schema<User > = new Schema({
     },
     number:{
         type:String,
-        required:true
     },
     isBlocked:{
         type:Boolean,

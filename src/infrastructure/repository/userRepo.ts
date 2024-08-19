@@ -39,6 +39,19 @@ class UserRepo {
     return savedDoc;
   }
 
+  async Gsignup(name:string,email:string,password:string,isGoogle:boolean): Promise<any>{
+      const GUser  = new UserModel({
+        name:name,
+        email:email,
+        password:password,
+        isGoogle:isGoogle,
+        isVerified:true
+      })
+
+      const newGUser = await GUser.save()
+      return newGUser
+  }
+
   async findOtpByEmail(email:string) : Promise<any>{
     return otpModel.findOne({ email }).sort({ otpGeneratedAt: -1 });
   }
@@ -76,6 +89,17 @@ class UserRepo {
       );
     } catch (error) {
       throw error;
+    }
+  }
+
+  async findUser(email:string){
+    try {
+      console.log('in repo');     
+      let user = await UserModel.findOne({email:email})
+      return user
+    } catch (error) {
+      console.log(error);
+      
     }
   }
 }

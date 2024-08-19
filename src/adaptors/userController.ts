@@ -1,3 +1,4 @@
+import { log } from "console";
 import UserUseCase from "../usecase/userUsecase";
 import { NextFunction, Request, Response } from "express";
 
@@ -12,10 +13,7 @@ class UserController {
     try {
       const verifyUser = await this.UserUseCase.checkExist(req.body.email);
 
-      // if (verifyUser.data.status === true && req.body.isGoogle) {
-      //     const user = await this.UserUseCase.verifyOtpUser(req.body);
-      //     return res.status(user.status).json(user);
-      // }
+
 
       if (verifyUser.data.status === true) {
         const sendOtp = await this.UserUseCase.signup(
@@ -40,7 +38,9 @@ class UserController {
         req.body.email,
         req.body.otp
       );
-
+      
+      console.log(verfyOTP.status)
+      console.log(verfyOTP.message)
       return res.status(verfyOTP.status).json(verfyOTP.message);
     } catch (error) {
       next(error);
@@ -52,7 +52,6 @@ class UserController {
       console.log("in controller ");
       
       const resend = await this.UserUseCase.resend_otp(req.body.email)
-      console.log(resend);
       
       if(resend){
         return res.status(resend.status).json({message:'otp sentt'})
@@ -60,6 +59,50 @@ class UserController {
     } catch (error) {
       console.log(error);
       
+      next(error);
+    }
+  }
+
+  async login(req:Request,res:Response,next:NextFunction){
+    try {
+      const { email, password } = req.body;
+      
+      const user = await this.UserUseCase.login(email, password);
+      console.log(user.status , user.data);
+     
+      
+
+      return res.status(user.status).json(user.data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async Gsignup(req:Request,res:Response,next:NextFunction){
+    try {
+      const {name,email,password,isGoogle} = req.body
+      const userExist = await this.UserUseCase.checkExist(req.body.email);
+       
+      if(userExist.data.status === false && userExist.data.user?.isGoogle === true){
+            let token = await this.UserUseCase.generateTokenForG(userExist.data.user?._id.toString(),userExist.data.user.isAdmin)
+            return res.status(200).json({data:userExist.data.user,token:token})
+        // return res.status(userExist.status).json(userExist.data);
+      }else{
+         let user =  await this.UserUseCase.Gsignup(
+          name,
+          email,
+          password,
+          isGoogle
+        );
+      
+        console.log(user.data);
+        console.log(user.status);
+        
+       return res.status(user.status).json(user.data)
+      }
+ 
+
+    } catch (error) {
       next(error);
     }
   }
