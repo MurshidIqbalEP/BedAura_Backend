@@ -5,6 +5,7 @@ interface Otp{
     password:string,
     otp:number,
     otpGeneratedAt:Date
+    expiresAt:Date
 }
 
 export default Otp;

@@ -9,9 +9,8 @@ import http from "http";
 
 
 // route roots
-import {userRoute} from "../../infrastructure/router/userRoute";
-// import tutorRoute from "../router/toturRoute";
-// import adminRoute from "../router/adminRoute";
+import {userRoute} from "../router/userRoute";
+import { adminRoute } from "../router/adminRoute";
 
 const app = express()
 export const httpServer = http.createServer(app)
@@ -35,6 +34,7 @@ app.use(session({
 app.use(morgan('dev'))   
 
 app.use("/api/user", userRoute)
+app.use("/api/admin", adminRoute)
 
 
 

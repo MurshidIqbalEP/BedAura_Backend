@@ -6,6 +6,8 @@ import GenerateOtp from "../services/generateOtp";
 import EncryptPassword from "../services/encriptPassword";
 import GenerateEmail from "../services/generateEmail";
 import JWTToken from "../services/generateToken";
+import { userAuth } from "../middleware/userAuth";
+import upload from "../middleware/multer";
 
 let generateOtp = new GenerateOtp();
 let encryptPassword = new EncryptPassword();
@@ -40,6 +42,13 @@ userRoute.post(
 );
 
 userRoute.post(
+  "/verifyForgetOtp",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.verify_ForgetOtp(req, res, next);
+  }
+);
+
+userRoute.post(
   "/resend-otp",
   (req: Request, res: Response, next: NextFunction) => {
     userController.resent_otp(req, res, next);
@@ -52,7 +61,35 @@ userRoute.post("/login", (req: Request, res: Response, next: NextFunction) => {
   userController.login(req, res, next);
 });
 
-userRoute.post("/Gsignup",(req,res,next)=>{
-  console.log("in router");
+userRoute.post("/Gsignup",(req: Request,res:Response,next:NextFunction)=>{
+
   userController.Gsignup(req,res,next)
 })
+
+userRoute.post("/forgetPass",(req:Request,res:Response,next:NextFunction)=>{
+  console.log("in router");
+  
+  userController.forgetPass(req,res,next)
+  
+})
+
+userRoute.post("/changePass",(req:Request,res:Response,next:NextFunction)=>{
+  
+  userController.changePass(req,res,next)
+  
+})
+
+
+userRoute.post("/addRoom", upload.array('images', 3),(req:Request,res:Response,next:NextFunction)=>{
+  
+  userController.addRoom(req,res,next)
+  
+})
+
+userRoute.get("/myRooms",(req:Request,res:Response,next:NextFunction)=>{
+  
+  userController.fetchRoomById(req,res,next)
+  
+})
+
+

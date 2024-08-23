@@ -1,4 +1,3 @@
-import { log } from "console";
 import UserUseCase from "../usecase/userUsecase";
 import { NextFunction, Request, Response } from "express";
 
@@ -12,8 +11,6 @@ class UserController {
   async signUp(req: Request, res: Response, next: NextFunction) {
     try {
       const verifyUser = await this.UserUseCase.checkExist(req.body.email);
-
-
 
       if (verifyUser.data.status === true) {
         const sendOtp = await this.UserUseCase.signup(
@@ -38,39 +35,50 @@ class UserController {
         req.body.email,
         req.body.otp
       );
-      
-      console.log(verfyOTP.status)
-      console.log(verfyOTP.message)
+
+      console.log(verfyOTP.status);
+      console.log(verfyOTP.message);
       return res.status(verfyOTP.status).json(verfyOTP.message);
     } catch (error) {
       next(error);
     }
   }
 
-  async resent_otp(req:Request,res:Response,next:NextFunction){
+  async verify_ForgetOtp(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("in controller ");
-      
-      const resend = await this.UserUseCase.resend_otp(req.body.email)
-      
-      if(resend){
-        return res.status(resend.status).json({message:'otp sentt'})
-      }
+      const verfyOTP = await this.UserUseCase.verifyForgetOTP(
+        req.body.email,
+        req.body.otp
+      );
+
+      return res.status(verfyOTP.status).json(verfyOTP.message);
     } catch (error) {
-      console.log(error);
-      
       next(error);
     }
   }
 
-  async login(req:Request,res:Response,next:NextFunction){
+  async resent_otp(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log("in controller ");
+
+      const resend = await this.UserUseCase.resend_otp(req.body.email);
+
+      if (resend) {
+        return res.status(resend.status).json({ message: "otp sentt" });
+      }
+    } catch (error) {
+      console.log(error);
+
+      next(error);
+    }
+  }
+
+  async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
-      
+
       const user = await this.UserUseCase.login(email, password);
-      console.log(user.status , user.data);
-     
-      
+      console.log(user.status, user.data);
 
       return res.status(user.status).json(user.data);
     } catch (error) {
@@ -78,30 +86,133 @@ class UserController {
     }
   }
 
-  async Gsignup(req:Request,res:Response,next:NextFunction){
+  async Gsignup(req: Request, res: Response, next: NextFunction) {
     try {
-      const {name,email,password,isGoogle} = req.body
+      const { name, email, password, isGoogle } = req.body;
       const userExist = await this.UserUseCase.checkExist(req.body.email);
-       
-      if(userExist.data.status === false && userExist.data.user?.isGoogle === true){
-            let token = await this.UserUseCase.generateTokenForG(userExist.data.user?._id.toString(),userExist.data.user.isAdmin)
-            return res.status(200).json({data:userExist.data.user,token:token})
+
+      if (
+        userExist.data.status === false &&
+        userExist.data.user?.isGoogle === true
+      ) {
+        let token = await this.UserUseCase.generateTokenForG(
+          userExist.data.user?._id.toString(),
+          userExist.data.user.isAdmin
+        );
+        return res
+          .status(200)
+          .json({ data: userExist.data.user, token: token });
         // return res.status(userExist.status).json(userExist.data);
-      }else{
-         let user =  await this.UserUseCase.Gsignup(
+      } else {
+        let user = await this.UserUseCase.Gsignup(
           name,
           email,
           password,
           isGoogle
         );
-      
+
         console.log(user.data);
         console.log(user.status);
-        
-       return res.status(user.status).json(user.data)
-      }
- 
 
+        return res.status(user.status).json(user.data);
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async forgetPass(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      let response = await this.UserUseCase.forgetPass(email);
+      console.log(response.status, response.data);
+
+      return res.status(response.status).json(response.data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async changePass(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password } = req.body;
+      let response = await this.UserUseCase.changePass(email, password);
+      if (response) {
+        return res.status(200).json({ message: "password changed" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async addRoom(req: Request, res: Response, next: NextFunction) {
+    try {
+      const {
+        name,
+        mobile,
+        slots,
+        maintenanceCharge,
+        securityDeposit,
+        gender,
+        roomType,
+        noticePeriod,
+        electricityCharge,
+        location,
+        description,
+        userId,
+      } = req.body;
+
+      const coordinates = JSON.parse(req.body.coordinates);
+
+      if (Array.isArray(req.files)) {
+        const images: string[] = req.files.map((file) => file.filename);
+
+        const roomData = {
+          name,
+          userId,
+          slots,
+          mobile,
+          maintenanceCharge,
+          securityDeposit,
+          gender,
+          roomType,
+          noticePeriod,
+          electricityCharge,
+          location,
+          description,
+          coordinates,
+          images,
+        };
+
+        let response = await this.UserUseCase.addNewRoom(roomData);
+
+        if (response.status == 200) {
+          return res
+            .status(response.status)
+            .json({ message: "New Room Request Added" });
+        } else {
+          return res
+            .status(response.status)
+            .json({ message: "something happened" });
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchRoomById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.query.id as string;
+
+      if (id) {
+        let response = await this.UserUseCase.fetchRoomById(id);
+         if(response){
+          return res.status(response.status).json({data:response.data})
+         }
+      } else {
+        console.error("ID is undefined");
+      }
     } catch (error) {
       next(error);
     }

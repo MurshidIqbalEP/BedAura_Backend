@@ -8,8 +8,10 @@ const OtpSchema: Schema<Otp> = new Schema({
   password: { type: String },
   otp: { type: Number, required: true },
   otpGeneratedAt: { type: Date, required: true },
+  expiresAt: { type: Date, required: true },
 });
 
+OtpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 const OtpModel: Model<Otp> = mongoose.model<Otp>("Otp", OtpSchema);
 
 export default OtpModel;

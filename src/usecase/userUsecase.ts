@@ -3,6 +3,7 @@ import GenerateOtp from "../infrastructure/services/generateOtp";
 import EncriptPassword from "../infrastructure/services/encriptPassword";
 import GenerateEmail from "../infrastructure/services/generateEmail";
 import JwtToken from "../infrastructure/services/generateToken";
+import Room, { IRoom } from "../domain/room";
 
 class UserUseCase {
   private UserRepo: UserRepo;
@@ -55,7 +56,7 @@ class UserUseCase {
 
     console.log(otp);
 
-    this.GenerateEmail.sendMail(email, otp);
+     await this.GenerateEmail.sendMail(email, otp);
 
     return {
       status: 200,
@@ -94,15 +95,6 @@ class UserUseCase {
       return { status: 400, message: "Invalid or expired OTP" };
     }
 
-    const now = Date.now();
-    const otpGeneratedAt = new Date(otpRecord.otpGeneratedAt).getTime();
-    const otpExpiration = 2 * 60 * 1000; // 2 minutes in milliseconds
-
-    if (now - otpGeneratedAt > otpExpiration) {
-      await this.UserRepo.deleteOtpByEmail(email);
-      console.log("OTP expired");
-      return { status: 400, message: "OTP has expired" };
-    }
 
     if (otpRecord.otp !== parseInt(otp)) {
       return { status: 400, message: "Invalid OTP" };
@@ -114,6 +106,25 @@ class UserUseCase {
 
     return { status: 200, message: "OTP verified successfully", data };
   }
+  
+  async verifyForgetOTP(email: string, otp: string): Promise<any> {
+    const otpRecord = await this.UserRepo.findOtpByEmail(email);
+
+    if (!otpRecord) {
+      return { status: 400, message: "Invalid or expired OTP" };
+    }
+
+
+    if (otpRecord.otp !== parseInt(otp)) {
+      return { status: 400, message: "Invalid OTP" };
+    }
+
+    await this.UserRepo.deleteOtpByEmail(email);
+    
+
+    return { status: 200, message: "ForgetOTP verified successfully" };
+  }
+
 
   async resend_otp(email: string): Promise<any> {
     let otp = await this.GenerateOtp.createOtp();
@@ -130,7 +141,7 @@ class UserUseCase {
   }
 
   async login(email: string, password: string) {
-    console.log("in usecase", email, password);
+
 
     const user = await this.UserRepo.findUser(email);
 
@@ -156,7 +167,7 @@ class UserUseCase {
         };
       }
 
-      console.log("password matching process ....");
+      
 
       const passwordMatch = await this.EncriptPassword.compare(
         password,
@@ -212,7 +223,86 @@ class UserUseCase {
     }
   }
 
+  async forgetPass(email: string) {
+
+    let exist = await this.UserRepo.findByEmail(email)
+    if(exist){
+      let otp = await this.GenerateOtp.createOtp();
+    
+      let otpSave = await this.UserRepo.saveOtpForforgetPass(email, otp);
+      let sendEmail = await   this.GenerateEmail.sendMail(email, otp);
+      
+      if (otpSave) {
+        return {
+          status: 200,
+          data: {
+            message: "OTP sented",
+            email: otpSave.email,
+          },
+        };
+      } else {
+        return {
+          status: 400,
+          data: {
+            message: "OTP send failed",
+          },
+        };
+      }
+
+    }else{
+      return {
+        status: 400,
+        data: {
+          message: "Wrong Email",
+        },
+      };
+    }
+    
+}
+
+async changePass(email:string,password:string){
+  const hashedPassword = await this.EncriptPassword.encryptPassword(password);
+  let changed = await this.UserRepo.changePass(email,hashedPassword)
+  return true
   
 }
+
+async addNewRoom(roomData:IRoom){
+
+  let newRoom = await this.UserRepo.addRoom(roomData)
+  if(newRoom){
+    return {
+      status: 200,
+      message: "New Room Request added",
+    }
+  }else{
+    return {
+      status: 400,
+      message: "some thing happened",
+    }
+  }
+}
+
+async fetchRoomById(id:string){
+  let rooms = await this.UserRepo.fetchAllRoomsById(id);
+  if(rooms){
+    return {
+      status:200,
+      data:rooms
+    }
+  }else{
+    return {
+      status:400,
+      message:" no rooms found"
+    }
+  }
+}
+
+
+
+  }
+
+  
+
 
 export default UserUseCase;
