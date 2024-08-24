@@ -11,6 +11,7 @@ import http from "http";
 // route roots
 import {userRoute} from "../router/userRoute";
 import { adminRoute } from "../router/adminRoute";
+import path from "path";
 
 const app = express()
 export const httpServer = http.createServer(app)
@@ -18,6 +19,9 @@ export const httpServer = http.createServer(app)
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.resolve(__dirname, '../../../uploads')));
+console.log(path.resolve(__dirname, '../../../uploads'));
 
 app.use(cors({
   origin: process.env.CORS_URL,

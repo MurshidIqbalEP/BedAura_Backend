@@ -30,7 +30,6 @@
     slots:Number,
     roomType:string,
     noticePeriod:string,
-    electricityCharge:string,
     location:string,
     description:string,
     coordinates: { lat: number, lng: number }

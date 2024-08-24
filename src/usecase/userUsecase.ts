@@ -283,6 +283,22 @@ async addNewRoom(roomData:IRoom){
   }
 }
 
+async editRoom(roomData : any){
+
+  let edited = await this.UserRepo.editRoom(roomData)
+  if(edited){
+    return {
+      status: 200,
+      message: "Room Edited"
+    }
+  }else{
+    return {
+      status: 400,
+      message: "some thing happened",
+    }
+  }
+}
+
 async fetchRoomById(id:string){
   let rooms = await this.UserRepo.fetchAllRoomsById(id);
   if(rooms){
@@ -294,6 +310,22 @@ async fetchRoomById(id:string){
     return {
       status:400,
       message:" no rooms found"
+    }
+  }
+}
+
+
+async fetchRoom(id:string){
+  let room = await this.UserRepo.fetchRoom(id);
+  if(room){
+    return {
+      status:200,
+      data:room
+    }
+  }else{
+    return {
+      status:400,
+      message:" no room found"
     }
   }
 }

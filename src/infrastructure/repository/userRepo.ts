@@ -142,45 +142,78 @@ class UserRepo {
 
   async addRoom(roomData: IRoom) {
     try {
-
-      
-      const Room  = new RoomModel({
-        name:roomData.name,
-        userId:roomData.userId,
-        mobile:roomData.mobile,
-        slots:roomData.slots,
-        maintenanceCharge:roomData.maintenanceCharge,
-        securityDeposit:roomData.securityDeposit,
-        gender:roomData.gender,
-        roomType:roomData.roomType,
-        noticePeriod:roomData.noticePeriod,
-        location:roomData.location,
-        description:roomData.description,
-        coordinates:{
-          type:"Point",
-          coordinates:[roomData.coordinates.lat,roomData.coordinates.lng]
+      const Room = new RoomModel({
+        name: roomData.name,
+        userId: roomData.userId,
+        mobile: roomData.mobile,
+        slots: roomData.slots,
+        maintenanceCharge: roomData.maintenanceCharge,
+        securityDeposit: roomData.securityDeposit,
+        gender: roomData.gender,
+        roomType: roomData.roomType,
+        noticePeriod: roomData.noticePeriod,
+        location: roomData.location,
+        description: roomData.description,
+        coordinates: {
+          type: "Point",
+          coordinates: [roomData.coordinates.lat, roomData.coordinates.lng],
         },
-        images:roomData.images
+        images: roomData.images,
+      });
+      let newRoom = await Room.save();
 
-      })
-      let newRoom =await  Room.save()
-
-      if(newRoom){
-        return newRoom
+      if (newRoom) {
+        return newRoom;
       }
     } catch (error) {
       console.log(error);
     }
   }
 
-  async fetchAllRoomsById(id:string){
-     try {
-      let rooms = RoomModel.find({userId:id})
-      return rooms;
-     } catch (error) {
+  async editRoom(roomData: any) {
+    try {
+      const edited = await RoomModel.findByIdAndUpdate(roomData.roomId, {
+        $set: {
+          name: roomData.name,
+          slots: roomData.slots,
+          mobile: roomData.mobile,
+          maintenanceCharge: roomData.maintenanceCharge,
+          securityDeposit:roomData.securityDeposit,
+          gender:roomData.gender,
+          roomType:roomData.roomType,
+          noticePeriod:roomData.noticePeriod,
+          location:roomData.location,
+          description:roomData.description,
+          coordinates: {
+            type: "Point",
+            coordinates: [roomData.coordinates.lat, roomData.coordinates.lng],
+          },
+          images:roomData.images
+        },
+      });
+
+      return edited;
+    } catch (error) {
       console.log(error);
-      
-     }
+    }
+  }
+
+  async fetchAllRoomsById(id: string) {
+    try {
+      let rooms = RoomModel.find({ userId: id });
+      return rooms;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async fetchRoom(id: string) {
+    try {
+      let rooms = RoomModel.findById(id);
+      return rooms;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 

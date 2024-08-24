@@ -29,7 +29,6 @@ export const userRoute = express.Router();
 userRoute.post(
   "/register",
   (req: Request, res: Response, next: NextFunction) => {
-    
     userController.signUp(req, res, next);
   }
 );
@@ -56,40 +55,56 @@ userRoute.post(
 );
 
 userRoute.post("/login", (req: Request, res: Response, next: NextFunction) => {
-
-
   userController.login(req, res, next);
 });
 
-userRoute.post("/Gsignup",(req: Request,res:Response,next:NextFunction)=>{
+userRoute.post(
+  "/Gsignup",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.Gsignup(req, res, next);
+  }
+);
 
-  userController.Gsignup(req,res,next)
-})
+userRoute.post(
+  "/forgetPass",
+  (req: Request, res: Response, next: NextFunction) => {
+    console.log("in router");
 
-userRoute.post("/forgetPass",(req:Request,res:Response,next:NextFunction)=>{
-  console.log("in router");
-  
-  userController.forgetPass(req,res,next)
-  
-})
+    userController.forgetPass(req, res, next);
+  }
+);
 
-userRoute.post("/changePass",(req:Request,res:Response,next:NextFunction)=>{
-  
-  userController.changePass(req,res,next)
-  
-})
+userRoute.post(
+  "/changePass",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.changePass(req, res, next);
+  }
+);
 
+userRoute.post(
+  "/addRoom",
+  upload.array("images", 3),
+  (req: Request, res: Response, next: NextFunction) => {
+    
+    
+    userController.addRoom(req, res, next);
+  }
+);
 
-userRoute.post("/addRoom", upload.array('images', 3),(req:Request,res:Response,next:NextFunction)=>{
-  
-  userController.addRoom(req,res,next)
-  
-})
+userRoute.patch(
+  "/editRoom",
+  upload.array("images", 3),
+  (req: Request, res: Response, next: NextFunction) => {
+   
+    
+    userController.editRoom(req, res, next);
+  }
+);
 
-userRoute.get("/myRooms",(req:Request,res:Response,next:NextFunction)=>{
-  
-  userController.fetchRoomById(req,res,next)
-  
-})
+userRoute.get("/myRooms", (req: Request, res: Response, next: NextFunction) => {
+  userController.fetchRoomById(req, res, next);
+});
 
-
+userRoute.get("/Room", (req: Request, res: Response, next: NextFunction) => {
+  userController.fetchRoom(req, res, next);
+});

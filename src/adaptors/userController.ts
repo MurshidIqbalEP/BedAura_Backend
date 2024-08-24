@@ -1,3 +1,4 @@
+import Room from "../domain/room";
 import UserUseCase from "../usecase/userUsecase";
 import { NextFunction, Request, Response } from "express";
 
@@ -156,7 +157,6 @@ class UserController {
         gender,
         roomType,
         noticePeriod,
-        electricityCharge,
         location,
         description,
         userId,
@@ -177,7 +177,6 @@ class UserController {
           gender,
           roomType,
           noticePeriod,
-          electricityCharge,
           location,
           description,
           coordinates,
@@ -201,15 +200,98 @@ class UserController {
     }
   }
 
+  async editRoom(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log("in controller");
+
+      const {
+        roomId,
+        name,
+        mobile,
+        slots,
+        maintenanceCharge,
+        securityDeposit,
+        gender,
+        roomType,
+        noticePeriod,
+        location,
+        description,
+        ExistingImg,
+      } = req.body;
+
+      // Parsing coordinates with error handling
+      let coordinates;
+      try {
+        coordinates = JSON.parse(req.body.coordinates);
+      } catch (parseError) {
+        return res.status(400).json({ error: "Invalid coordinates format" });
+      }
+
+      // Handling file uploads and existing images
+      let images: string[] = [];
+      if (Array.isArray(req.files)) {
+        images = req.files.map((file) => file.filename);
+      }
+
+      // Combining new and existing images
+      const allImages = [
+        ...images,
+        ...(Array.isArray(ExistingImg) ? ExistingImg : []),
+      ];
+
+      // Construct room data
+      const roomData = {
+        name,
+        roomId,
+        slots,
+        mobile,
+        maintenanceCharge,
+        securityDeposit,
+        gender,
+        roomType,
+        noticePeriod,
+        location,
+        description,
+        coordinates,
+        images: allImages, // using combined images
+      };
+
+      let response = await this.UserUseCase.editRoom(roomData);
+
+      res.status(response.status).json(response.message)
+      
+    } catch (error) {
+      console.error("Error editing room:", error); // Optional: Logging the error
+      next(error); // Forward error to middleware
+    }
+  }
+
   async fetchRoomById(req: Request, res: Response, next: NextFunction) {
     try {
       const id = req.query.id as string;
 
       if (id) {
         let response = await this.UserUseCase.fetchRoomById(id);
-         if(response){
-          return res.status(response.status).json({data:response.data})
-         }
+        if (response) {
+          return res.status(response.status).json({ data: response.data });
+        }
+      } else {
+        console.error("ID is undefined");
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchRoom(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.query.id as string;
+
+      if (id) {
+        let response = await this.UserUseCase.fetchRoom(id);
+        if (response) {
+          return res.status(response.status).json({ data: response.data });
+        }
       } else {
         console.error("ID is undefined");
       }
