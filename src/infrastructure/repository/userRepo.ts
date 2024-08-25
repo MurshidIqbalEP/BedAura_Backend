@@ -207,6 +207,15 @@ class UserRepo {
     }
   }
 
+  async fetchAllRooms(){
+    try {
+      let rooms = RoomModel.find();
+      return rooms;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async fetchRoom(id: string) {
     try {
       let rooms = RoomModel.findById(id);

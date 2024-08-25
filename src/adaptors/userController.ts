@@ -258,8 +258,7 @@ class UserController {
 
       let response = await this.UserUseCase.editRoom(roomData);
 
-      res.status(response.status).json(response.message)
-      
+      res.status(response.status).json(response.message);
     } catch (error) {
       console.error("Error editing room:", error); // Optional: Logging the error
       next(error); // Forward error to middleware
@@ -297,6 +296,16 @@ class UserController {
       }
     } catch (error) {
       next(error);
+    }
+  }
+
+  async fetchAllRooms(req:Request,res:Response,next:NextFunction){
+    try {
+      
+      let response = await this.UserUseCase.fetchAllRooms()
+      return res.status(response?.status ?? 500).json(response?.data)
+    } catch (error) {
+      next(error)
     }
   }
 }

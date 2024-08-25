@@ -85,8 +85,6 @@ userRoute.post(
   "/addRoom",
   upload.array("images", 3),
   (req: Request, res: Response, next: NextFunction) => {
-    
-    
     userController.addRoom(req, res, next);
   }
 );
@@ -95,8 +93,6 @@ userRoute.patch(
   "/editRoom",
   upload.array("images", 3),
   (req: Request, res: Response, next: NextFunction) => {
-   
-    
     userController.editRoom(req, res, next);
   }
 );
@@ -107,4 +103,9 @@ userRoute.get("/myRooms", (req: Request, res: Response, next: NextFunction) => {
 
 userRoute.get("/Room", (req: Request, res: Response, next: NextFunction) => {
   userController.fetchRoom(req, res, next);
+});
+
+
+userRoute.get("/fetchAllRooms",(req: Request, res: Response, next: NextFunction)=>{
+   userController.fetchAllRooms(req,res,next)
 });

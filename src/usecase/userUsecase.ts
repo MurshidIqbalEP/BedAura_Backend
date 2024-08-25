@@ -34,7 +34,7 @@ class UserUseCase {
         data: {
           status: false,
           message: "User already exists",
-          user: userExist
+          user: userExist,
         },
       };
     } else {
@@ -56,7 +56,7 @@ class UserUseCase {
 
     console.log(otp);
 
-     await this.GenerateEmail.sendMail(email, otp);
+    await this.GenerateEmail.sendMail(email, otp);
 
     return {
       status: 200,
@@ -67,21 +67,30 @@ class UserUseCase {
     };
   }
 
-  async Gsignup(name:string,email:string,password:string,isGoogle:boolean){
+  async Gsignup(
+    name: string,
+    email: string,
+    password: string,
+    isGoogle: boolean
+  ) {
     const hashedPassword = await this.EncriptPassword.encryptPassword(password);
-     
 
-    let newUser = await this.UserRepo.Gsignup(name,email,hashedPassword,isGoogle)
+    let newUser = await this.UserRepo.Gsignup(
+      name,
+      email,
+      hashedPassword,
+      isGoogle
+    );
     const token = this.JwtToken.generateToken(newUser._id.toString(), "user");
-    return {status:200, data:{user:newUser,token:token}}
+    return { status: 200, data: { user: newUser, token: token } };
   }
 
-  async generateTokenForG(id:string,admin:boolean){
-    let a
-    if(admin){
-       a ="admin"
-    }else{
-      a = "user"
+  async generateTokenForG(id: string, admin: boolean) {
+    let a;
+    if (admin) {
+      a = "admin";
+    } else {
+      a = "user";
     }
     const token = this.JwtToken.generateToken(id, a);
 
@@ -95,7 +104,6 @@ class UserUseCase {
       return { status: 400, message: "Invalid or expired OTP" };
     }
 
-
     if (otpRecord.otp !== parseInt(otp)) {
       return { status: 400, message: "Invalid OTP" };
     }
@@ -106,7 +114,7 @@ class UserUseCase {
 
     return { status: 200, message: "OTP verified successfully", data };
   }
-  
+
   async verifyForgetOTP(email: string, otp: string): Promise<any> {
     const otpRecord = await this.UserRepo.findOtpByEmail(email);
 
@@ -114,17 +122,14 @@ class UserUseCase {
       return { status: 400, message: "Invalid or expired OTP" };
     }
 
-
     if (otpRecord.otp !== parseInt(otp)) {
       return { status: 400, message: "Invalid OTP" };
     }
 
     await this.UserRepo.deleteOtpByEmail(email);
-    
 
     return { status: 200, message: "ForgetOTP verified successfully" };
   }
-
 
   async resend_otp(email: string): Promise<any> {
     let otp = await this.GenerateOtp.createOtp();
@@ -141,8 +146,6 @@ class UserUseCase {
   }
 
   async login(email: string, password: string) {
-
-
     const user = await this.UserRepo.findUser(email);
 
     let token = "";
@@ -166,8 +169,6 @@ class UserUseCase {
           },
         };
       }
-
-      
 
       const passwordMatch = await this.EncriptPassword.compare(
         password,
@@ -224,14 +225,13 @@ class UserUseCase {
   }
 
   async forgetPass(email: string) {
-
-    let exist = await this.UserRepo.findByEmail(email)
-    if(exist){
+    let exist = await this.UserRepo.findByEmail(email);
+    if (exist) {
       let otp = await this.GenerateOtp.createOtp();
-    
+
       let otpSave = await this.UserRepo.saveOtpForforgetPass(email, otp);
-      let sendEmail = await   this.GenerateEmail.sendMail(email, otp);
-      
+      let sendEmail = await this.GenerateEmail.sendMail(email, otp);
+
       if (otpSave) {
         return {
           status: 200,
@@ -248,8 +248,7 @@ class UserUseCase {
           },
         };
       }
-
-    }else{
+    } else {
       return {
         status: 400,
         data: {
@@ -257,84 +256,90 @@ class UserUseCase {
         },
       };
     }
-    
-}
-
-async changePass(email:string,password:string){
-  const hashedPassword = await this.EncriptPassword.encryptPassword(password);
-  let changed = await this.UserRepo.changePass(email,hashedPassword)
-  return true
-  
-}
-
-async addNewRoom(roomData:IRoom){
-
-  let newRoom = await this.UserRepo.addRoom(roomData)
-  if(newRoom){
-    return {
-      status: 200,
-      message: "New Room Request added",
-    }
-  }else{
-    return {
-      status: 400,
-      message: "some thing happened",
-    }
-  }
-}
-
-async editRoom(roomData : any){
-
-  let edited = await this.UserRepo.editRoom(roomData)
-  if(edited){
-    return {
-      status: 200,
-      message: "Room Edited"
-    }
-  }else{
-    return {
-      status: 400,
-      message: "some thing happened",
-    }
-  }
-}
-
-async fetchRoomById(id:string){
-  let rooms = await this.UserRepo.fetchAllRoomsById(id);
-  if(rooms){
-    return {
-      status:200,
-      data:rooms
-    }
-  }else{
-    return {
-      status:400,
-      message:" no rooms found"
-    }
-  }
-}
-
-
-async fetchRoom(id:string){
-  let room = await this.UserRepo.fetchRoom(id);
-  if(room){
-    return {
-      status:200,
-      data:room
-    }
-  }else{
-    return {
-      status:400,
-      message:" no room found"
-    }
-  }
-}
-
-
-
   }
 
-  
+  async changePass(email: string, password: string) {
+    const hashedPassword = await this.EncriptPassword.encryptPassword(password);
+    let changed = await this.UserRepo.changePass(email, hashedPassword);
+    return true;
+  }
+
+  async addNewRoom(roomData: IRoom) {
+    let newRoom = await this.UserRepo.addRoom(roomData);
+    if (newRoom) {
+      return {
+        status: 200,
+        message: "New Room Request added",
+      };
+    } else {
+      return {
+        status: 400,
+        message: "some thing happened",
+      };
+    }
+  }
+
+  async editRoom(roomData: any) {
+    let edited = await this.UserRepo.editRoom(roomData);
+    if (edited) {
+      return {
+        status: 200,
+        message: "Room Edited",
+      };
+    } else {
+      return {
+        status: 400,
+        message: "some thing happened",
+      };
+    }
+  }
+
+  async fetchRoomById(id: string) {
+    let rooms = await this.UserRepo.fetchAllRoomsById(id);
+    if (rooms) {
+      return {
+        status: 200,
+        data: rooms,
+      };
+    } else {
+      return {
+        status: 400,
+        message: " no rooms found",
+      };
+    }
+  }
+
+  async fetchRoom(id: string) {
+    let room = await this.UserRepo.fetchRoom(id);
+    if (room) {
+      return {
+        status: 200,
+        data: room,
+      };
+    } else {
+      return {
+        status: 400,
+        message: " no room found",
+      };
+    }
+  }
+
+
+  async fetchAllRooms(){
+    let rooms =  await this.UserRepo.fetchAllRooms()
+    if(rooms){
+      return {
+        status:200,
+        data:{
+          message:"rooms fetched",
+          rooms
+        }
+      }
+    }
+  }
+
+
+}
 
 
 export default UserUseCase;
