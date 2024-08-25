@@ -301,8 +301,12 @@ class UserController {
 
   async fetchAllRooms(req:Request,res:Response,next:NextFunction){
     try {
-      
-      let response = await this.UserUseCase.fetchAllRooms()
+      const page = parseInt(typeof req.query.page === 'string' ? req.query.page : '1', 10);
+const limit = parseInt(typeof req.query.limit === 'string' ? req.query.limit : '10', 10);
+
+      const skip = (page - 1) * limit; 
+
+      let response = await this.UserUseCase.fetchAllRooms(page,limit,skip)
       return res.status(response?.status ?? 500).json(response?.data)
     } catch (error) {
       next(error)

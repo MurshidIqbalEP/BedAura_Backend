@@ -178,17 +178,17 @@ class UserRepo {
           slots: roomData.slots,
           mobile: roomData.mobile,
           maintenanceCharge: roomData.maintenanceCharge,
-          securityDeposit:roomData.securityDeposit,
-          gender:roomData.gender,
-          roomType:roomData.roomType,
-          noticePeriod:roomData.noticePeriod,
-          location:roomData.location,
-          description:roomData.description,
+          securityDeposit: roomData.securityDeposit,
+          gender: roomData.gender,
+          roomType: roomData.roomType,
+          noticePeriod: roomData.noticePeriod,
+          location: roomData.location,
+          description: roomData.description,
           coordinates: {
             type: "Point",
             coordinates: [roomData.coordinates.lat, roomData.coordinates.lng],
           },
-          images:roomData.images
+          images: roomData.images,
         },
       });
 
@@ -207,10 +207,19 @@ class UserRepo {
     }
   }
 
-  async fetchAllRooms(){
+  async fetchAllRooms(page: number, limit: number, skip: number) {
     try {
-      let rooms = RoomModel.find();
+      let rooms = RoomModel.find().skip(skip).limit(limit);
       return rooms;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async totalRooms() {
+    try {
+      const total = await RoomModel.countDocuments();
+      return total;
     } catch (error) {
       console.log(error);
     }

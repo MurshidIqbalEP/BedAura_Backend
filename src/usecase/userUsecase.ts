@@ -325,14 +325,19 @@ class UserUseCase {
   }
 
 
-  async fetchAllRooms(){
-    let rooms =  await this.UserRepo.fetchAllRooms()
+  async fetchAllRooms(page:number,limit:number,skip:number){
+    let rooms =  await this.UserRepo.fetchAllRooms(page,limit,skip)
+    let total = await this.UserRepo.totalRooms();
+    const totalRooms = total ?? 0;
     if(rooms){
       return {
         status:200,
         data:{
           message:"rooms fetched",
-          rooms
+          rooms,
+          total,
+          page,
+          totalPages: Math.ceil(totalRooms / limit),
         }
       }
     }
