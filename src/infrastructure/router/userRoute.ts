@@ -82,7 +82,7 @@ userRoute.post(
 );
 
 userRoute.post(
-  "/addRoom",
+  "/addRoom",userAuth,
   upload.array("images", 3),
   (req: Request, res: Response, next: NextFunction) => {
     userController.addRoom(req, res, next);
@@ -90,18 +90,18 @@ userRoute.post(
 );
 
 userRoute.patch(
-  "/editRoom",
+  "/editRoom",userAuth,
   upload.array("images", 3),
   (req: Request, res: Response, next: NextFunction) => {
     userController.editRoom(req, res, next);
   }
 );
 
-userRoute.get("/myRooms", (req: Request, res: Response, next: NextFunction) => {
+userRoute.get("/myRooms",userAuth, (req: Request, res: Response, next: NextFunction) => {
   userController.fetchRoomById(req, res, next);
 });
 
-userRoute.get("/Room", (req: Request, res: Response, next: NextFunction) => {
+userRoute.get("/Room",userAuth, (req: Request, res: Response, next: NextFunction) => {
   userController.fetchRoom(req, res, next);
 });
 
