@@ -157,6 +157,7 @@ class UserUseCase {
         email: user.email,
         phone: user.number,
         isBlocked: user.isBlocked,
+        isAdmin:user.isAdmin,
       };
 
       if (user.isBlocked) {
@@ -175,13 +176,13 @@ class UserUseCase {
         user.password
       );
 
-      console.log(passwordMatch);
 
       if (passwordMatch && user.isAdmin) {
         token = this.JwtToken.generateToken(user._id.toString(), "admin");
-
+        const refreshToken = this.JwtToken.generateRefreshToken(user._id.toString(), "admin");
         return {
           status: 200,
+          refreshToken,
           data: {
             status: true,
             message: data,
@@ -193,9 +194,10 @@ class UserUseCase {
 
       if (passwordMatch) {
         token = this.JwtToken.generateToken(user._id.toString(), "user");
-
+        const refreshToken = this.JwtToken.generateRefreshToken(user._id.toString(), "user");
         return {
           status: 200,
+          refreshToken,
           data: {
             status: true,
             message: data,
@@ -223,6 +225,20 @@ class UserUseCase {
       };
     }
   }
+
+  async refreshTokenUseCase(refreshToken: string) {
+    const { valid, user } = await this.JwtToken.verifyRefreshToken(refreshToken);
+  
+    if (valid) {
+      let role = user.isAdmin==true? "admin":"user"
+        const newAccessToken = this.JwtToken.generateToken(user.userId,role );
+        return { status: 200, newAccessToken };
+    } else {
+        return { status: 401, message: 'Invalid refresh token' };
+    }
+ }
+
+
 
   async forgetPass(email: string) {
     let exist = await this.UserRepo.findByEmail(email);

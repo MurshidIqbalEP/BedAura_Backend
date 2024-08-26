@@ -79,13 +79,44 @@ class UserController {
       const { email, password } = req.body;
 
       const user = await this.UserUseCase.login(email, password);
-      console.log(user.status, user.data);
-
+      const refreshToken = user.refreshToken
+     console.log("refresh token" + "-----" +refreshToken);
+     
+     res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'lax', 
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+      
+   
       return res.status(user.status).json(user.data);
     } catch (error) {
       next(error);
     }
   }
+
+  async refreshToken (req:Request, res:Response,next:NextFunction) {
+    try {
+     
+      
+        const { refreshToken } = req.cookies; 
+        console.log(refreshToken);
+        
+
+        if (!refreshToken) {
+            return res.sendStatus(401); // Unauthorized
+        }
+       
+
+        const result = await this.UserUseCase.refreshTokenUseCase(refreshToken);
+        
+        return res.status(result.status).json({accessToken : result.newAccessToken})
+         
+    } catch (error) {
+        next(error)
+    }
+};
 
   async Gsignup(req: Request, res: Response, next: NextFunction) {
     try {
@@ -299,17 +330,23 @@ class UserController {
     }
   }
 
-  async fetchAllRooms(req:Request,res:Response,next:NextFunction){
+  async fetchAllRooms(req: Request, res: Response, next: NextFunction) {
     try {
-      const page = parseInt(typeof req.query.page === 'string' ? req.query.page : '1', 10);
-const limit = parseInt(typeof req.query.limit === 'string' ? req.query.limit : '10', 10);
+      const page = parseInt(
+        typeof req.query.page === "string" ? req.query.page : "1",
+        10
+      );
+      const limit = parseInt(
+        typeof req.query.limit === "string" ? req.query.limit : "10",
+        10
+      );
 
-      const skip = (page - 1) * limit; 
+      const skip = (page - 1) * limit;
 
-      let response = await this.UserUseCase.fetchAllRooms(page,limit,skip)
-      return res.status(response?.status ?? 500).json(response?.data)
+      let response = await this.UserUseCase.fetchAllRooms(page, limit, skip);
+      return res.status(response?.status ?? 500).json(response?.data);
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
 }

@@ -11,23 +11,23 @@ const storage = multer.diskStorage({
   }
 });
 
-// Configure file filter and size limit
-const fileFilter = (req: any, file: Express.Multer.File, cb: FileFilterCallback) => {
-  const fileTypes = /jpeg|jpg|png/;
-  const mimeType = fileTypes.test(file.mimetype);
-  const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
+// // Configure file filter and size limit
+// const fileFilter = (req: any, file: Express.Multer.File, cb: FileFilterCallback) => {
+//   const fileTypes = /jpeg|jpg|png/;
+//   const mimeType = fileTypes.test(file.mimetype);
+//   const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
 
-  if (mimeType && extName) {
-    cb(null, true);
-  } else {
-    cb(new Error('File type not supported!'));
-  }
-};
+//   if (mimeType && extName) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error('File type not supported!'));
+//   }
+// };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-  fileFilter: fileFilter
+  // limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  // fileFilter: fileFilter
 });
 
 export default upload;
