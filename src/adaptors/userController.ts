@@ -1,3 +1,4 @@
+import { MAX_AGE } from "../domain/otp";
 import Room from "../domain/room";
 import UserUseCase from "../usecase/userUsecase";
 import { NextFunction, Request, Response } from "express";
@@ -8,6 +9,7 @@ class UserController {
   constructor(UserUseCase: UserUseCase) {
     this.UserUseCase = UserUseCase;
   }
+
 
   async signUp(req: Request, res: Response, next: NextFunction) {
     try {
@@ -79,44 +81,41 @@ class UserController {
       const { email, password } = req.body;
 
       const user = await this.UserUseCase.login(email, password);
-      const refreshToken = user.refreshToken
-     console.log("refresh token" + "-----" +refreshToken);
-     
-     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'lax', 
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-  });
-      
-   
+      const refreshToken = user.refreshToken;
+      console.log("refresh token" + "-----" + refreshToken);
+
+      res.cookie("refreshtoken", refreshToken, {
+        httpOnly: true,
+        maxAge: MAX_AGE, // 7 days
+        secure: false,
+        // secure: process.env.NODE_ENV !== "development",
+        sameSite:"none",
+        // sameSite:process.env.NODE_ENV !== "development" ? "none" : "strict",
+      });
+
       return res.status(user.status).json(user.data);
     } catch (error) {
       next(error);
     }
   }
 
-  async refreshToken (req:Request, res:Response,next:NextFunction) {
+  async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-     
-      
-        const { refreshToken } = req.cookies; 
-        console.log(refreshToken);
-        
-
-        if (!refreshToken) {
-            return res.sendStatus(401); // Unauthorized
-        }
-       
-
-        const result = await this.UserUseCase.refreshTokenUseCase(refreshToken);
-        
-        return res.status(result.status).json({accessToken : result.newAccessToken})
-         
+      console.log("refresh token ethi");
+      console.log(req.cookies.refreshtoken);
+      const refreshToken = req.cookies.refreshtoken;
+      if (!refreshToken) {
+        console.log("senindg 4000");
+        return res.sendStatus(400); // Unauthorized
+      }
+      const result = await this.UserUseCase.refreshTokenUseCase(refreshToken);
+      return res
+        .status(result.status)
+        .json({ accessToken: result.newAccessToken });
     } catch (error) {
-        next(error)
+      next(error);
     }
-};
+  }
 
   async Gsignup(req: Request, res: Response, next: NextFunction) {
     try {
@@ -134,7 +133,6 @@ class UserController {
         return res
           .status(200)
           .json({ data: userExist.data.user, token: token });
-        // return res.status(userExist.status).json(userExist.data);
       } else {
         let user = await this.UserUseCase.Gsignup(
           name,
@@ -142,9 +140,6 @@ class UserController {
           password,
           isGoogle
         );
-
-        console.log(user.data);
-        console.log(user.status);
 
         return res.status(user.status).json(user.data);
       }
@@ -233,8 +228,6 @@ class UserController {
 
   async editRoom(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("in controller");
-
       const {
         roomId,
         name,
@@ -291,13 +284,15 @@ class UserController {
 
       res.status(response.status).json(response.message);
     } catch (error) {
-      console.error("Error editing room:", error); // Optional: Logging the error
       next(error); // Forward error to middleware
     }
   }
 
   async fetchRoomById(req: Request, res: Response, next: NextFunction) {
     try {
+     console.log(req.cookies);
+     
+
       const id = req.query.id as string;
 
       if (id) {

@@ -6,7 +6,7 @@ class JWTToken  {
         const SECRETKEY=process.env.JWT_SECRET_KEY;
         if(SECRETKEY){
             const token=jwt.sign({userId,role},SECRETKEY,{
-                expiresIn:'15m'
+                expiresIn:'15s'
             })
             return token
         }

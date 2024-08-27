@@ -110,7 +110,7 @@ userRoute.get("/fetchAllRooms",(req: Request, res: Response, next: NextFunction)
    userController.fetchAllRooms(req,res,next)
 });
 
-userRoute.post("/refresh-token",(req: Request, res: Response, next: NextFunction)=>{
+userRoute.get("/refresh-token",(req: Request, res: Response, next: NextFunction)=>{
   
   userController.refreshToken(req,res,next)
 });
