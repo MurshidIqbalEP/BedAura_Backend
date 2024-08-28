@@ -5,7 +5,7 @@ class AdminRepo {
     constructor() {}
   
     async fetchUsers(){
-        let users = await UserModel.find()
+        let users = await UserModel.find({isAdmin:false})
 
         return users
     }
