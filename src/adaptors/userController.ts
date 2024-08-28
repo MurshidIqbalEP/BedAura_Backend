@@ -210,7 +210,7 @@ class UserController {
         };
 
         let response = await this.UserUseCase.addNewRoom(roomData);
-
+        
         if (response.status == 200) {
           return res
             .status(response.status)
@@ -310,6 +310,8 @@ class UserController {
 
   async fetchRoom(req: Request, res: Response, next: NextFunction) {
     try {
+      
+      
       const id = req.query.id as string;
 
       if (id) {

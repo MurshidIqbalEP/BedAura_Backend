@@ -30,4 +30,32 @@ adminRoute.patch(
       adminController.unBlockUser(req, res, next);
     }
   );
+
+  adminRoute.get(
+    "/fetchEditRequests",
+    (req: Request, res: Response, next: NextFunction) => {
+      adminController.fetchEditRequests(req, res, next);
+    }
+  );
+
+  adminRoute.patch(
+    "/approveEdit",
+    (req: Request, res: Response, next: NextFunction) => {
+      adminController.approveEdit(req, res, next);
+    }
+  );
+
+  adminRoute.patch(
+    "/approveRoom",
+    (req: Request, res: Response, next: NextFunction) => {
+      adminController.approveRoom(req, res, next);
+    }
+  );
+
+  adminRoute.get(
+    "/newRoomRequest",
+    (req: Request, res: Response, next: NextFunction) => {
+      adminController.fetchNewRequests(req, res, next);
+    }
+  );
   

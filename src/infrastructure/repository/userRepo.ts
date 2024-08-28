@@ -189,6 +189,8 @@ class UserRepo {
             coordinates: [roomData.coordinates.lat, roomData.coordinates.lng],
           },
           images: roomData.images,
+          isAproved:false,
+          isEdited:true,
         },
       });
 

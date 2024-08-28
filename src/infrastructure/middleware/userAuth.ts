@@ -7,6 +7,7 @@ export const userAuth = async (
   res: Response,
   next: NextFunction
 ) => {
+  
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -22,13 +23,14 @@ export const userAuth = async (
       token,
       process.env.JWT_SECRET_KEY as string
     ) as JwtPayload;
-
+    
     if (decodedToken.role !== "user") {
       return res.status(400).json({ message: "Unauthorized access" });
     }
 
     const userId = decodedToken.userId;
     const user = await UserModel.findById(userId);
+    
 
     if (!user) {
       return res.status(400).json({ message: "User not found" });

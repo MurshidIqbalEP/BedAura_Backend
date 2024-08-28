@@ -11,7 +11,8 @@
     electricityCharge:string,
     location:string,
     description:string,
-    isAproved:boolean,
+    isApproved:boolean,
+    isEdited:boolean,
     coordinates: {
         type: 'Point'; 
         coordinates: [number, number]; // [longitude, latitude]

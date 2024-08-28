@@ -43,9 +43,13 @@ const uroomSchema: Schema<Room> = new Schema({
   description: {
     type: String,
   },
-  isAproved: {
+  isApproved: {
     type: Boolean,
     default: false,
+  },
+  isEdited:{
+    type:Boolean,
+    default:false,
   },
   coordinates: {
     type: {
