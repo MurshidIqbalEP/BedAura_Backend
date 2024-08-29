@@ -58,4 +58,47 @@ adminRoute.patch(
       adminController.fetchNewRequests(req, res, next);
     }
   );
+
+  adminRoute.get(
+    "/fetchAllRooms",
+    (req: Request, res: Response, next: NextFunction) => {
+      adminController.fetchAllRooms(req, res, next);
+    }
+  );
+
+  adminRoute.patch(
+    "/unlistRoom",
+    (req:Request,res:Response,next:NextFunction)=>{
+      adminController.unlistRoom(req, res, next);
+    }
+  )
+
+  adminRoute.patch(
+    "/listRoom",
+    (req:Request,res:Response,next:NextFunction)=>{
+      adminController.listRoom(req, res, next);
+    }
+  )
+
+  adminRoute.get(
+    "/fetchOptions",
+    (req:Request,res:Response,next:NextFunction)=>{
+      adminController.fetchOptions(req,res,next)
+    }
+  )
+
+  adminRoute.patch(
+    "/addOption",
+    (req:Request,res:Response,next:NextFunction)=>{
+      adminController.addOption(req,res,next)
+    }
+  )
+
+  adminRoute.patch(
+    "/removeOption",
+    (req:Request,res:Response,next:NextFunction)=>{
+      
+      adminController.removeOption(req,res,next)
+    }
+  )
   

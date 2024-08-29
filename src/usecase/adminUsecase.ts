@@ -23,6 +23,21 @@ class AdminUsecase {
     }
   }
 
+  async fetchAllRooms(){
+    const rooms = await this.AdminRepo.fetchAllRoops();
+    if(rooms){
+      return{
+        status:200,
+        data:rooms
+      }
+    }else{
+      return {
+        status:400,
+        message:" Fail to fetch Rooms"
+      }
+    }
+  }
+
   async blockUser(email: string) {
     const data = await this.AdminRepo.blockUser(email);
 
@@ -112,6 +127,82 @@ class AdminUsecase {
       return {
         status:400,
         message:"failed to fetch new Requests"
+      }
+    }
+  }
+
+  async unlistRoom(id:string){
+    const room = await this.AdminRepo.unlistRoom(id)
+    if(room){
+      return {
+        status:200,
+        message:"room unlisted"
+      }
+    }else{
+      return {
+        status:400,
+        message:" failed to unlist room "
+      }
+    }
+  }
+
+  async listRoom(id:string){
+    const room = await this.AdminRepo.listRoom(id)
+    if(room){
+      return {
+        status:200,
+        message:"room listed"
+      }
+    }else{
+      return {
+        status:400,
+        message:" failed to list room "
+      }
+    }
+  }
+
+  async fetchOptions(){
+    const options = await this.AdminRepo.fetchOptions();
+    if(options){
+      return {
+        status:200,
+        data:options
+      }
+    }else{
+      return {
+        status:400,
+        message:"failed to fetch options"
+      }
+    }
+  }
+
+  async addOption(category:string,newValue:string){
+    const added = await this.AdminRepo.addOption(category,newValue)
+    if(added){
+      return {
+        status:200,
+        message:"option added"
+      }
+    }else{
+      return {
+        status:400,
+        message:"failed add option"
+      }
+    }
+  }
+
+  async removeOption(category:string,newValue:string){
+    const removed = await this.AdminRepo.removeOption(category,newValue)
+    
+    if(removed){
+      return {
+        status:200,
+        message:"option removed"
+      }
+    }else{
+      return {
+        status:400,
+        message:"failed remove option"
       }
     }
   }

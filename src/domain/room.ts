@@ -13,6 +13,7 @@
     description:string,
     isApproved:boolean,
     isEdited:boolean,
+    isListed:boolean,
     coordinates: {
         type: 'Point'; 
         coordinates: [number, number]; // [longitude, latitude]

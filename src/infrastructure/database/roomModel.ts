@@ -51,6 +51,10 @@ const uroomSchema: Schema<Room> = new Schema({
     type:Boolean,
     default:false,
   },
+  isListed:{
+    type:Boolean,
+    default:true,
+  },
   coordinates: {
     type: {
       type: String,
