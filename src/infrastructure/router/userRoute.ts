@@ -114,3 +114,8 @@ userRoute.get("/refresh-token",(req: Request, res: Response, next: NextFunction)
   
   userController.refreshToken(req,res,next)
 });
+
+userRoute.put("/editUser",(req: Request, res: Response, next: NextFunction)=>{
+  
+  userController.editUser(req,res,next)
+});

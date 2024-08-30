@@ -346,6 +346,18 @@ class UserController {
       next(error);
     }
   }
+
+  async editUser(req: Request, res: Response, next: NextFunction){
+    try {
+      const { _id, name, email, phone } = req.body;
+      console.log(phone);
+      
+      let response = await this.UserUseCase.editUser(_id, name, email, phone);
+      return res.status(response.status).json(response.data);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default UserController;

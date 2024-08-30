@@ -211,7 +211,7 @@ class UserRepo {
 
   async fetchAllRooms(page: number, limit: number, skip: number) {
     try {
-      let rooms = RoomModel.find().skip(skip).limit(limit);
+      let rooms = RoomModel.find({isListed:true}).skip(skip).limit(limit);
       return rooms;
     } catch (error) {
       console.log(error);
@@ -231,6 +231,17 @@ class UserRepo {
     try {
       let rooms = RoomModel.findById(id);
       return rooms;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async editUser(_id:string, name:string, email:string, phone:string){
+    try {
+      let edited = await UserModel.findByIdAndUpdate( _id, 
+        { name, email, number:phone }, 
+        { new: true})
+      return edited;  
     } catch (error) {
       console.log(error);
     }

@@ -157,7 +157,7 @@ class UserUseCase {
         email: user.email,
         phone: user.number,
         isBlocked: user.isBlocked,
-        isAdmin:user.isAdmin,
+        isAdmin: user.isAdmin,
       };
 
       if (user.isBlocked) {
@@ -176,10 +176,12 @@ class UserUseCase {
         user.password
       );
 
-
       if (passwordMatch && user.isAdmin) {
         token = this.JwtToken.generateToken(user._id.toString(), "admin");
-        const refreshToken = this.JwtToken.generateRefreshToken(user._id.toString(), "admin");
+        const refreshToken = this.JwtToken.generateRefreshToken(
+          user._id.toString(),
+          "admin"
+        );
         return {
           status: 200,
           refreshToken,
@@ -194,7 +196,10 @@ class UserUseCase {
 
       if (passwordMatch) {
         token = this.JwtToken.generateToken(user._id.toString(), "user");
-        const refreshToken = this.JwtToken.generateRefreshToken(user._id.toString(), "user");
+        const refreshToken = this.JwtToken.generateRefreshToken(
+          user._id.toString(),
+          "user"
+        );
         return {
           status: 200,
           refreshToken,
@@ -227,18 +232,18 @@ class UserUseCase {
   }
 
   async refreshTokenUseCase(refreshToken: string) {
-    const { valid, user } = await this.JwtToken.verifyRefreshToken(refreshToken);
-  
+    const { valid, user } = await this.JwtToken.verifyRefreshToken(
+      refreshToken
+    );
+
     if (valid) {
-      let role = user.isAdmin==true? "admin":"user"
-        const newAccessToken = this.JwtToken.generateToken(user.userId,role );
-        return { status: 200, newAccessToken };
+      let role = user.isAdmin == true ? "admin" : "user";
+      const newAccessToken = this.JwtToken.generateToken(user.userId, role);
+      return { status: 200, newAccessToken };
     } else {
-        return { status: 401, message: 'Invalid refresh token' };
+      return { status: 401, message: "Invalid refresh token" };
     }
- }
-
-
+  }
 
   async forgetPass(email: string) {
     let exist = await this.UserRepo.findByEmail(email);
@@ -340,27 +345,38 @@ class UserUseCase {
     }
   }
 
-
-  async fetchAllRooms(page:number,limit:number,skip:number){
-    let rooms =  await this.UserRepo.fetchAllRooms(page,limit,skip)
+  async fetchAllRooms(page: number, limit: number, skip: number) {
+    let rooms = await this.UserRepo.fetchAllRooms(page, limit, skip);
     let total = await this.UserRepo.totalRooms();
     const totalRooms = total ?? 0;
-    if(rooms){
+    if (rooms) {
       return {
-        status:200,
-        data:{
-          message:"rooms fetched",
+        status: 200,
+        data: {
+          message: "rooms fetched",
           rooms,
           total,
           page,
           totalPages: Math.ceil(totalRooms / limit),
-        }
-      }
+        },
+      };
     }
   }
 
-
+  async editUser(_id: string, name: string, email: string, phone: string) {
+    let editedUser = await this.UserRepo.editUser(_id, name, email, phone);
+    if (editedUser) {
+      return {
+        status: 200,
+        data: editedUser,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to update User",
+      };
+    }
+  }
 }
-
 
 export default UserUseCase;
