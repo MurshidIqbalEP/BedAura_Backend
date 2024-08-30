@@ -21,6 +21,9 @@ const userSchema: Schema<User > = new Schema({
     number:{
         type:String,
     },
+    image:{
+      type:String
+    },
     isBlocked:{
         type:Boolean,
         default:false

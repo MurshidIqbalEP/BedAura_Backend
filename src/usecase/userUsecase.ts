@@ -71,7 +71,8 @@ class UserUseCase {
     name: string,
     email: string,
     password: string,
-    isGoogle: boolean
+    isGoogle: boolean,
+    image:string
   ) {
     const hashedPassword = await this.EncriptPassword.encryptPassword(password);
 
@@ -79,7 +80,8 @@ class UserUseCase {
       name,
       email,
       hashedPassword,
-      isGoogle
+      isGoogle,
+      image
     );
     const token = this.JwtToken.generateToken(newUser._id.toString(), "user");
     return { status: 200, data: { user: newUser, token: token } };

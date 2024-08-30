@@ -65,14 +65,18 @@ class UserRepo {
     name: string,
     email: string,
     password: string,
-    isGoogle: boolean
+    isGoogle: boolean,
+    image: string
   ): Promise<any> {
+    
+    
     const GUser = new UserModel({
       name: name,
       email: email,
       password: password,
       isGoogle: isGoogle,
       isVerified: true,
+      image:image
     });
 
     const newGUser = await GUser.save();

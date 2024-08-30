@@ -7,6 +7,7 @@ interface User{
     isVerified:boolean,
     isAdmin:boolean,
     isGoogle:boolean,
+    image:string
 }
 
 export default User;

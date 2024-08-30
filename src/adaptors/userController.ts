@@ -119,8 +119,11 @@ class UserController {
 
   async Gsignup(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, email, password, isGoogle } = req.body;
+      const { name, email, password, isGoogle,image } = req.body;
       const userExist = await this.UserUseCase.checkExist(req.body.email);
+
+      console.log(image);
+      
 
       if (
         userExist.data.status === false &&
@@ -138,7 +141,8 @@ class UserController {
           name,
           email,
           password,
-          isGoogle
+          isGoogle,
+          image
         );
 
         return res.status(user.status).json(user.data);
