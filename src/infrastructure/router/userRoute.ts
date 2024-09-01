@@ -119,3 +119,8 @@ userRoute.put("/editUser",(req: Request, res: Response, next: NextFunction)=>{
   
   userController.editUser(req,res,next)
 });
+
+userRoute.get("/fetchNearestRooms",(req: Request, res: Response, next: NextFunction)=>{
+  
+  userController.fetchNearestRooms(req,res,next)
+});

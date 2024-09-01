@@ -160,7 +160,7 @@ class UserRepo {
         description: roomData.description,
         coordinates: {
           type: "Point",
-          coordinates: [roomData.coordinates.lat, roomData.coordinates.lng],
+          coordinates: [ roomData.coordinates.lng,roomData.coordinates.lat],
         },
         images: roomData.images,
       });
@@ -190,7 +190,7 @@ class UserRepo {
           description: roomData.description,
           coordinates: {
             type: "Point",
-            coordinates: [roomData.coordinates.lat, roomData.coordinates.lng],
+            coordinates: [roomData.coordinates.lng,roomData.coordinates.lat],
           },
           images: roomData.images,
           isAproved:false,
@@ -246,6 +246,56 @@ class UserRepo {
         { name, email, number:phone }, 
         { new: true})
       return edited;  
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async fetchNearestRooms(latitude:number,longitude:number,page:number,limit:number,skip:number){
+    try {
+ 
+      let rooms = await RoomModel.aggregate([
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [longitude, latitude] },
+            distanceField: "distance",
+            spherical: true,
+            maxDistance: 5000000,
+          }
+        },{
+          $skip:skip
+        },
+        {
+          $limit:limit
+        }
+      ]);
+    
+
+    return rooms
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
+
+  async totalNearRooms(latitude:number,longitude:number){
+    try {
+      let roomCount = await RoomModel.aggregate([
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [longitude, latitude] },
+            distanceField: "distance",
+            spherical: true,
+            maxDistance: 5000000,
+          }
+        },
+        {
+          $count: "roomCount" 
+        }
+      ]);
+      let count = roomCount.length > 0 ? roomCount[0].roomCount : 0;
+      return count;
+
     } catch (error) {
       console.log(error);
     }

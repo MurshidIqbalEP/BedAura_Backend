@@ -72,6 +72,7 @@ const uroomSchema: Schema<Room> = new Schema({
   },
 });
 
+uroomSchema.index({ coordinates: "2dsphere" });
 const RoomModel: Model<Room> = mongoose.model<Room>("Room", uroomSchema);
 
 export default RoomModel;

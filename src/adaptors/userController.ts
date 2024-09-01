@@ -193,6 +193,8 @@ class UserController {
       } = req.body;
 
       const coordinates = JSON.parse(req.body.coordinates);
+      console.log(coordinates);
+      
 
       if (Array.isArray(req.files)) {
         const images: string[] = req.files.map((file) => file.filename);
@@ -354,10 +356,34 @@ class UserController {
   async editUser(req: Request, res: Response, next: NextFunction){
     try {
       const { _id, name, email, phone } = req.body;
-      console.log(phone);
       
       let response = await this.UserUseCase.editUser(_id, name, email, phone);
       return res.status(response.status).json(response.data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchNearestRooms(req:Request,res:Response,next:NextFunction){
+    try {
+      const latitude = parseFloat(req.query.lat as string);
+      const longitude = parseFloat(req.query.lon as string);
+
+      const page = parseInt(
+        typeof req.query.page === "string" ? req.query.page : "1",
+        10
+      );
+      const limit = parseInt(
+        typeof req.query.limit === "string" ? req.query.limit : "10",
+        10
+      );
+
+      const skip = (page - 1) * limit;
+      
+      let response = await this.UserUseCase.fetchNearestRooms(latitude,longitude,page,limit,skip)
+      
+      return res.status(response.status).json(response.data)
+      
     } catch (error) {
       next(error);
     }

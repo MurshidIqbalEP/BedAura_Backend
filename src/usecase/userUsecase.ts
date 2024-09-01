@@ -371,12 +371,36 @@ class UserUseCase {
       return {
         status: 200,
         data: editedUser,
+        
       };
     } else {
       return {
         status: 400,
         message: "failed to update User",
       };
+    }
+  }
+
+  async fetchNearestRooms(latitude:number,longitude:number,page:number,limit:number,skip:number){
+    let rooms = await this.UserRepo.fetchNearestRooms(latitude,longitude,page,limit,skip);
+    let total  = await this.UserRepo.totalNearRooms(latitude,longitude);
+    const totalRooms = total ?? 0;
+    if(rooms){
+      return {
+        status:200,
+        data:{
+          rooms,
+        total,
+        page,
+        totalPages: Math.ceil(totalRooms / limit)
+        }
+        
+      }
+    }else{
+      return{
+        status:400,
+        message:"failed to fetchnearest rooms"
+      }
     }
   }
 }
