@@ -388,6 +388,17 @@ class UserController {
       next(error);
     }
   }
+
+  async bookRoom(req:Request,res:Response,next:NextFunction){
+    try {
+      
+      const { token, roomId, userId, slots } = req.body;
+      let response = await this.UserUseCase.bookRoom(token, roomId, userId, slots)
+      return res.status(response?.status).json(response?.message)
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default UserController;

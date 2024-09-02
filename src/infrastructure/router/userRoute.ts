@@ -82,7 +82,8 @@ userRoute.post(
 );
 
 userRoute.post(
-  "/addRoom",userAuth,
+  "/addRoom",
+  userAuth,
   upload.array("images", 3),
   (req: Request, res: Response, next: NextFunction) => {
     userController.addRoom(req, res, next);
@@ -90,37 +91,61 @@ userRoute.post(
 );
 
 userRoute.patch(
-  "/editRoom",userAuth,
+  "/editRoom",
+  userAuth,
   upload.array("images", 3),
   (req: Request, res: Response, next: NextFunction) => {
     userController.editRoom(req, res, next);
   }
 );
 
-userRoute.get("/myRooms",userAuth, (req: Request, res: Response, next: NextFunction) => {
-  userController.fetchRoomById(req, res, next);
-});
+userRoute.get(
+  "/myRooms",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.fetchRoomById(req, res, next);
+  }
+);
 
-userRoute.get("/Room",userAuth, (req: Request, res: Response, next: NextFunction) => {
-  userController.fetchRoom(req, res, next);
-});
+userRoute.get(
+  "/Room",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.fetchRoom(req, res, next);
+  }
+);
 
+userRoute.get(
+  "/fetchAllRooms",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.fetchAllRooms(req, res, next);
+  }
+);
 
-userRoute.get("/fetchAllRooms",(req: Request, res: Response, next: NextFunction)=>{
-   userController.fetchAllRooms(req,res,next)
-});
+userRoute.get(
+  "/refresh-token",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.refreshToken(req, res, next);
+  }
+);
 
-userRoute.get("/refresh-token",(req: Request, res: Response, next: NextFunction)=>{
-  
-  userController.refreshToken(req,res,next)
-});
+userRoute.put(
+  "/editUser",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.editUser(req, res, next);
+  }
+);
 
-userRoute.put("/editUser",(req: Request, res: Response, next: NextFunction)=>{
-  
-  userController.editUser(req,res,next)
-});
+userRoute.get(
+  "/fetchNearestRooms",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.fetchNearestRooms(req, res, next);
+  }
+);
 
-userRoute.get("/fetchNearestRooms",(req: Request, res: Response, next: NextFunction)=>{
-  
-  userController.fetchNearestRooms(req,res,next)
-});
+userRoute.post(
+  "/bookRoom",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.bookRoom(req, res, next);
+  }
+)

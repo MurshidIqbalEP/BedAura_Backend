@@ -1,6 +1,7 @@
 import UserModel from "../database/userModel";
 import otpModel from "../database/otpModel";
 import RoomModel from "../database/roomModel";
+import BookingModel from "../database/bookingModel"
 import Room, { IRoom } from "../../domain/room";
 
 class UserRepo {
@@ -215,7 +216,7 @@ class UserRepo {
 
   async fetchAllRooms(page: number, limit: number, skip: number) {
     try {
-      let rooms = RoomModel.find({isListed:true}).skip(skip).limit(limit);
+      let rooms = RoomModel.find({isListed:true,isEdited:false}).skip(skip).limit(limit);
       return rooms;
     } catch (error) {
       console.log(error);
@@ -224,7 +225,7 @@ class UserRepo {
 
   async totalRooms() {
     try {
-      const total = await RoomModel.countDocuments();
+      const total = await RoomModel.countDocuments({isListed:true,isEdited:false});
       return total;
     } catch (error) {
       console.log(error);
@@ -261,14 +262,22 @@ class UserRepo {
             distanceField: "distance",
             spherical: true,
             maxDistance: 5000000,
-          }
-        },{
-          $skip:skip
+          },
         },
         {
-          $limit:limit
-        }
+          $match: {
+            isListed: true,
+            isEdited: false,
+          },
+        },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limit,
+        },
       ]);
+      
     
 
     return rooms
@@ -290,12 +299,48 @@ class UserRepo {
           }
         },
         {
+          $match: {
+            isListed: true,
+            isEdited: false,
+          },
+        },
+        {
           $count: "roomCount" 
         }
       ]);
       let count = roomCount.length > 0 ? roomCount[0].roomCount : 0;
       return count;
 
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async roomBooking(userId:string,roomId:string,slots:number,paymentId:string,roomName:string){
+    try {
+      const newBooking = new BookingModel({
+        userId:userId,
+        roomName:roomName,
+        roomId:roomId,
+        slots:slots,
+        paymentId:paymentId
+      })
+      const booked = await newBooking.save()
+
+      if(booked){
+        const updatedRoom = await RoomModel.findByIdAndUpdate(
+          roomId,
+          {
+            $inc: { slots: -slots } 
+          },
+          { new: true } 
+        );
+      }
+
+      console.log(booked);
+      
+
+      return booked;
     } catch (error) {
       console.log(error);
     }

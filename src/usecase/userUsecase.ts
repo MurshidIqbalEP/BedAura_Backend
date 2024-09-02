@@ -4,6 +4,10 @@ import EncriptPassword from "../infrastructure/services/encriptPassword";
 import GenerateEmail from "../infrastructure/services/generateEmail";
 import JwtToken from "../infrastructure/services/generateToken";
 import Room, { IRoom } from "../domain/room";
+import Stripe from "stripe";
+import { v4 as uuidv4 } from 'uuid';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 class UserUseCase {
   private UserRepo: UserRepo;
@@ -403,6 +407,66 @@ class UserUseCase {
       }
     }
   }
+
+  async bookRoom(token: any, roomId: string, userId: string, slots: number): Promise<{ status: number; message: string }> {
+    try {
+        // Fetch room details
+        const room = await this.UserRepo.fetchRoom(roomId);
+        if (!room) {
+            return { status: 404, message: 'Room not found' };
+        }
+
+      
+        const customer = await stripe.customers.create({
+            email: token.email,
+            source: token.id,
+        });
+
+        const securityDeposit = room?.securityDeposit ? parseInt(room.securityDeposit, 10) : 0;
+        const total = securityDeposit * slots;
+
+       
+        const idempotencyKey = uuidv4();
+        const payment = await stripe.charges.create({
+            amount: total * 100,
+            customer: customer.id,
+            currency: "inr",
+            receipt_email: token.email,
+        }, {
+            idempotencyKey: idempotencyKey
+        });
+
+        
+        if (payment) {
+            const booked = await this.UserRepo.roomBooking(userId, roomId, slots, payment.id, room?.name as string);
+            
+            if (booked) {
+                return {
+                    status: 200,
+                    message: "Room booked"
+                };
+            } else {
+                return {
+                    status: 400,
+                    message: "Failed to book room"
+                };
+            }
+        } else {
+            return {
+                status: 500,
+                message: "Payment failed"
+            };
+        }
+    } catch (error) {
+        
+        console.error(error);
+        return {
+            status: 500,
+            message: "An error occurred while processing your request"
+        };
+    }
+}
+
 }
 
 export default UserUseCase;
