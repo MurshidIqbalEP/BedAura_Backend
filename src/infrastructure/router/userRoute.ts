@@ -33,6 +33,12 @@ userRoute.post(
   }
 );
 
+userRoute.post("/logOut",
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.logOut(req, res, next);
+  }
+);
+
 userRoute.post(
   "/verify-otp",
   (req: Request, res: Response, next: NextFunction) => {
@@ -46,6 +52,8 @@ userRoute.post(
     userController.verify_ForgetOtp(req, res, next);
   }
 );
+
+
 
 userRoute.post(
   "/resend-otp",
@@ -84,7 +92,7 @@ userRoute.post(
 userRoute.post(
   "/addRoom",
   userAuth,
-  upload.array("images", 3),
+  upload.none(),
   (req: Request, res: Response, next: NextFunction) => {
     userController.addRoom(req, res, next);
   }
@@ -93,7 +101,7 @@ userRoute.post(
 userRoute.patch(
   "/editRoom",
   userAuth,
-  upload.array("images", 3),
+  upload.none(),
   (req: Request, res: Response, next: NextFunction) => {
     userController.editRoom(req, res, next);
   }
@@ -131,6 +139,7 @@ userRoute.get(
 
 userRoute.put(
   "/editUser",
+  userAuth,
   (req: Request, res: Response, next: NextFunction) => {
     userController.editUser(req, res, next);
   }
@@ -145,6 +154,7 @@ userRoute.get(
 
 userRoute.post(
   "/bookRoom",
+  userAuth,
   (req: Request, res: Response, next: NextFunction) => {
     userController.bookRoom(req, res, next);
   }

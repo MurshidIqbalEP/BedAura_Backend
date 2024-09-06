@@ -5,7 +5,7 @@ import GenerateEmail from "../infrastructure/services/generateEmail";
 import JwtToken from "../infrastructure/services/generateToken";
 import Room, { IRoom } from "../domain/room";
 import Stripe from "stripe";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -76,7 +76,7 @@ class UserUseCase {
     email: string,
     password: string,
     isGoogle: boolean,
-    image:string
+    image: string
   ) {
     const hashedPassword = await this.EncriptPassword.encryptPassword(password);
 
@@ -375,7 +375,6 @@ class UserUseCase {
       return {
         status: 200,
         data: editedUser,
-        
       };
     } else {
       return {
@@ -385,88 +384,110 @@ class UserUseCase {
     }
   }
 
-  async fetchNearestRooms(latitude:number,longitude:number,page:number,limit:number,skip:number){
-    let rooms = await this.UserRepo.fetchNearestRooms(latitude,longitude,page,limit,skip);
-    let total  = await this.UserRepo.totalNearRooms(latitude,longitude);
+  async fetchNearestRooms(
+    latitude: number,
+    longitude: number,
+    page: number,
+    limit: number,
+    skip: number
+  ) {
+    let rooms = await this.UserRepo.fetchNearestRooms(
+      latitude,
+      longitude,
+      page,
+      limit,
+      skip
+    );
+    let total = await this.UserRepo.totalNearRooms(latitude, longitude);
     const totalRooms = total ?? 0;
-    if(rooms){
+    if (rooms) {
       return {
-        status:200,
-        data:{
+        status: 200,
+        data: {
           rooms,
-        total,
-        page,
-        totalPages: Math.ceil(totalRooms / limit)
-        }
-        
-      }
-    }else{
-      return{
-        status:400,
-        message:"failed to fetchnearest rooms"
-      }
+          total,
+          page,
+          totalPages: Math.ceil(totalRooms / limit),
+        },
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to fetchnearest rooms",
+      };
     }
   }
 
-  async bookRoom(token: any, roomId: string, userId: string, slots: number): Promise<{ status: number; message: string }> {
+  async bookRoom(
+    token: any,
+    roomId: string,
+    userId: string,
+    slots: number
+  ): Promise<{ status: number; message: string }> {
     try {
-        // Fetch room details
-        const room = await this.UserRepo.fetchRoom(roomId);
-        if (!room) {
-            return { status: 404, message: 'Room not found' };
+      // Fetch room details
+      const room = await this.UserRepo.fetchRoom(roomId);
+      if (!room) {
+        return { status: 404, message: "Room not found" };
+      }
+
+      const customer = await stripe.customers.create({
+        email: token.email,
+        source: token.id,
+      });
+
+      const securityDeposit = room?.securityDeposit
+        ? parseInt(room.securityDeposit, 10)
+        : 0;
+      const total = securityDeposit * slots;
+
+      const idempotencyKey = uuidv4();
+      const payment = await stripe.charges.create(
+        {
+          amount: total * 100,
+          customer: customer.id,
+          currency: "inr",
+          receipt_email: token.email,
+        },
+        {
+          idempotencyKey: idempotencyKey,
         }
+      );
 
-      
-        const customer = await stripe.customers.create({
-            email: token.email,
-            source: token.id,
-        });
+      if (payment) {
+        const booked = await this.UserRepo.roomBooking(
+          userId,
+          roomId,
+          slots,
+          payment.id,
+          room?.name as string
+        );
 
-        const securityDeposit = room?.securityDeposit ? parseInt(room.securityDeposit, 10) : 0;
-        const total = securityDeposit * slots;
-
-       
-        const idempotencyKey = uuidv4();
-        const payment = await stripe.charges.create({
-            amount: total * 100,
-            customer: customer.id,
-            currency: "inr",
-            receipt_email: token.email,
-        }, {
-            idempotencyKey: idempotencyKey
-        });
-
-        
-        if (payment) {
-            const booked = await this.UserRepo.roomBooking(userId, roomId, slots, payment.id, room?.name as string);
-            
-            if (booked) {
-                return {
-                    status: 200,
-                    message: "Room booked"
-                };
-            } else {
-                return {
-                    status: 400,
-                    message: "Failed to book room"
-                };
-            }
+        if (booked) {
+          return {
+            status: 200,
+            message: "Room booked",
+          };
         } else {
-            return {
-                status: 500,
-                message: "Payment failed"
-            };
+          return {
+            status: 400,
+            message: "Failed to book room",
+          };
         }
-    } catch (error) {
-        
-        console.error(error);
+      } else {
         return {
-            status: 500,
-            message: "An error occurred while processing your request"
+          status: 500,
+          message: "Payment failed",
         };
+      }
+    } catch (error) {
+      console.error(error);
+      return {
+        status: 500,
+        message: "An error occurred while processing your request",
+      };
     }
-}
-
+  }
 }
 
 export default UserUseCase;

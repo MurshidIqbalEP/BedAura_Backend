@@ -10,7 +10,6 @@ class UserController {
     this.UserUseCase = UserUseCase;
   }
 
-
   async signUp(req: Request, res: Response, next: NextFunction) {
     try {
       const verifyUser = await this.UserUseCase.checkExist(req.body.email);
@@ -29,6 +28,19 @@ class UserController {
       }
     } catch (error) {
       next(error); // Properly pass errors to the next function
+    }
+  }
+
+  async logOut(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.clearCookie("refreshtoken", {
+        httpOnly: true,
+        sameSite: "none",
+        secure: false,
+      });
+      res.json({ message: "cookie cleared" });
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -83,13 +95,14 @@ class UserController {
       const user = await this.UserUseCase.login(email, password);
       const refreshToken = user.refreshToken;
       console.log("refresh token" + "-----" + refreshToken);
+      console.log(user.data);
 
       res.cookie("refreshtoken", refreshToken, {
         httpOnly: true,
         maxAge: MAX_AGE, // 7 days
         secure: false,
         // secure: process.env.NODE_ENV !== "development",
-        sameSite:"none",
+        sameSite: "none",
         // sameSite:process.env.NODE_ENV !== "development" ? "none" : "strict",
       });
 
@@ -105,7 +118,7 @@ class UserController {
       console.log(req.cookies.refreshtoken);
       const refreshToken = req.cookies.refreshtoken;
       if (!refreshToken) {
-        console.log("senindg 4000");
+        console.log("senindg 400");
         return res.sendStatus(400); // Unauthorized
       }
       const result = await this.UserUseCase.refreshTokenUseCase(refreshToken);
@@ -119,11 +132,10 @@ class UserController {
 
   async Gsignup(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, email, password, isGoogle,image } = req.body;
+      const { name, email, password, isGoogle, image } = req.body;
       const userExist = await this.UserUseCase.checkExist(req.body.email);
 
       console.log(image);
-      
 
       if (
         userExist.data.status === false &&
@@ -191,41 +203,42 @@ class UserController {
         description,
         userId,
       } = req.body;
+      console.log(userId);
 
       const coordinates = JSON.parse(req.body.coordinates);
-      console.log(coordinates);
-      
 
-      if (Array.isArray(req.files)) {
-        const images: string[] = req.files.map((file) => file.filename);
+      const images = req.body.images; // Multer will handle this as an array automatically
 
-        const roomData = {
-          name,
-          userId,
-          slots,
-          mobile,
-          maintenanceCharge,
-          securityDeposit,
-          gender,
-          roomType,
-          noticePeriod,
-          location,
-          description,
-          coordinates,
-          images,
-        };
+      // If the images come in as a single item, ensure it's treated as an array
+      const imagesArray = Array.isArray(images) ? images : [images];
+      console.log(imagesArray);
 
-        let response = await this.UserUseCase.addNewRoom(roomData);
-        
-        if (response.status == 200) {
-          return res
-            .status(response.status)
-            .json({ message: "New Room Request Added" });
-        } else {
-          return res
-            .status(response.status)
-            .json({ message: "something happened" });
-        }
+      const roomData = {
+        name,
+        userId,
+        slots,
+        mobile,
+        maintenanceCharge,
+        securityDeposit,
+        gender,
+        roomType,
+        noticePeriod,
+        location,
+        description,
+        coordinates,
+        images: imagesArray,
+      };
+
+      console.log(roomData);
+
+      let response = await this.UserUseCase.addNewRoom(roomData);
+
+      if (response.status === 200) {
+        return res.status(200).json({ message: "New Room Request Added" });
+      } else {
+        return res
+          .status(response.status)
+          .json({ message: "Something happened" });
       }
     } catch (error) {
       next(error);
@@ -257,17 +270,11 @@ class UserController {
         return res.status(400).json({ error: "Invalid coordinates format" });
       }
 
-      // Handling file uploads and existing images
-      let images: string[] = [];
-      if (Array.isArray(req.files)) {
-        images = req.files.map((file) => file.filename);
-      }
+      const images = req.body.images; // Multer will handle this as an array automatically
 
-      // Combining new and existing images
-      const allImages = [
-        ...images,
-        ...(Array.isArray(ExistingImg) ? ExistingImg : []),
-      ];
+      // If the images come in as a single item, ensure it's treated as an array
+      const imagesArray = Array.isArray(images) ? images : [images];
+      console.log(imagesArray);
 
       // Construct room data
       const roomData = {
@@ -283,7 +290,7 @@ class UserController {
         location,
         description,
         coordinates,
-        images: allImages, // using combined images
+        images: imagesArray, // using combined images
       };
 
       let response = await this.UserUseCase.editRoom(roomData);
@@ -296,10 +303,8 @@ class UserController {
 
   async fetchRoomById(req: Request, res: Response, next: NextFunction) {
     try {
-     console.log(req.cookies);
-     
-
       const id = req.query.id as string;
+      console.log(id);
 
       if (id) {
         let response = await this.UserUseCase.fetchRoomById(id);
@@ -316,8 +321,6 @@ class UserController {
 
   async fetchRoom(req: Request, res: Response, next: NextFunction) {
     try {
-      
-      
       const id = req.query.id as string;
 
       if (id) {
@@ -353,10 +356,10 @@ class UserController {
     }
   }
 
-  async editUser(req: Request, res: Response, next: NextFunction){
+  async editUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { _id, name, email, phone } = req.body;
-      
+
       let response = await this.UserUseCase.editUser(_id, name, email, phone);
       return res.status(response.status).json(response.data);
     } catch (error) {
@@ -364,7 +367,7 @@ class UserController {
     }
   }
 
-  async fetchNearestRooms(req:Request,res:Response,next:NextFunction){
+  async fetchNearestRooms(req: Request, res: Response, next: NextFunction) {
     try {
       const latitude = parseFloat(req.query.lat as string);
       const longitude = parseFloat(req.query.lon as string);
@@ -379,22 +382,31 @@ class UserController {
       );
 
       const skip = (page - 1) * limit;
-      
-      let response = await this.UserUseCase.fetchNearestRooms(latitude,longitude,page,limit,skip)
-      
-      return res.status(response.status).json(response.data)
-      
+
+      let response = await this.UserUseCase.fetchNearestRooms(
+        latitude,
+        longitude,
+        page,
+        limit,
+        skip
+      );
+
+      return res.status(response.status).json(response.data);
     } catch (error) {
       next(error);
     }
   }
 
-  async bookRoom(req:Request,res:Response,next:NextFunction){
+  async bookRoom(req: Request, res: Response, next: NextFunction) {
     try {
-      
       const { token, roomId, userId, slots } = req.body;
-      let response = await this.UserUseCase.bookRoom(token, roomId, userId, slots)
-      return res.status(response?.status).json(response?.message)
+      let response = await this.UserUseCase.bookRoom(
+        token,
+        roomId,
+        userId,
+        slots
+      );
+      return res.status(response?.status).json(response?.message);
     } catch (error) {
       next(error);
     }

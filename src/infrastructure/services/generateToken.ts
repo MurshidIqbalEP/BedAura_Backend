@@ -6,7 +6,7 @@ class JWTToken  {
         const SECRETKEY=process.env.JWT_SECRET_KEY;
         if(SECRETKEY){
             const token=jwt.sign({userId,role},SECRETKEY,{
-                expiresIn:'30d'
+                expiresIn:'10d'
             })
             return token
         }
@@ -15,7 +15,7 @@ class JWTToken  {
 
    generateRefreshToken = (userId:string,role: string) => {
         const RefreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string
-        const RefreshToken =  jwt.sign({userId,role },RefreshTokenSecret, { expiresIn: '60d' }); 
+        const RefreshToken =  jwt.sign({userId,role },RefreshTokenSecret, { expiresIn: '70d' }); 
         return RefreshToken;
     };
 
