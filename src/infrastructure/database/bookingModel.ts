@@ -2,10 +2,11 @@ import mongoose, { Model, Schema, Document } from "mongoose";
 
 // Define the Booking interface
 interface IBooking extends Document {
-  userId: string;
+  userId: mongoose.Types.ObjectId;
   roomName: string;
-  roomId: string;
+  roomId: mongoose.Types.ObjectId;
   slots: number;
+  amount:number;
   paymentId: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   createdAt?: Date;
@@ -15,7 +16,8 @@ interface IBooking extends Document {
 // Define the Booking schema
 const bookingSchema = new Schema<IBooking>({
   userId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+     ref: 'User' ,
     required: true,
   },
   roomName: {
@@ -23,12 +25,15 @@ const bookingSchema = new Schema<IBooking>({
     required: true,
   },
   roomId: {
-    type: String,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId, ref: 'Room',
   },
   slots: {
     type: Number,
     required: true,
+  },
+  amount:{
+    type:Number,
+    required:true
   },
   paymentId: {
     type: String,
@@ -37,7 +42,7 @@ const bookingSchema = new Schema<IBooking>({
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'cancelled', 'completed'],
-    default: 'pending',
+    default: 'confirmed',
   },
   createdAt: {
     type: Date,

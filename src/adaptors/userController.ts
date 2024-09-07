@@ -411,6 +411,17 @@ class UserController {
       next(error);
     }
   }
+
+  async fetchBookings(req: Request, res: Response, next: NextFunction){
+    try {
+      const { userId } = req.params; 
+      
+      let response = await this.UserUseCase.fetchBookings(userId)
+      return res.status(response.status).json(response.data)
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default UserController;

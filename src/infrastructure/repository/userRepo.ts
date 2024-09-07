@@ -1,7 +1,7 @@
 import UserModel from "../database/userModel";
 import otpModel from "../database/otpModel";
 import RoomModel from "../database/roomModel";
-import BookingModel from "../database/bookingModel"
+import BookingModel from "../database/bookingModel";
 import Room, { IRoom } from "../../domain/room";
 
 class UserRepo {
@@ -69,15 +69,13 @@ class UserRepo {
     isGoogle: boolean,
     image: string
   ): Promise<any> {
-    
-    
     const GUser = new UserModel({
       name: name,
       email: email,
       password: password,
       isGoogle: isGoogle,
       isVerified: true,
-      image:image
+      image: image,
     });
 
     const newGUser = await GUser.save();
@@ -161,7 +159,7 @@ class UserRepo {
         description: roomData.description,
         coordinates: {
           type: "Point",
-          coordinates: [ roomData.coordinates.lng,roomData.coordinates.lat],
+          coordinates: [roomData.coordinates.lng, roomData.coordinates.lat],
         },
         images: roomData.images,
       });
@@ -191,11 +189,11 @@ class UserRepo {
           description: roomData.description,
           coordinates: {
             type: "Point",
-            coordinates: [roomData.coordinates.lng,roomData.coordinates.lat],
+            coordinates: [roomData.coordinates.lng, roomData.coordinates.lat],
           },
           images: roomData.images,
-          isAproved:false,
-          isEdited:true,
+          isAproved: false,
+          isEdited: true,
         },
       });
 
@@ -216,7 +214,9 @@ class UserRepo {
 
   async fetchAllRooms(page: number, limit: number, skip: number) {
     try {
-      let rooms = RoomModel.find({isListed:true,isEdited:false}).skip(skip).limit(limit);
+      let rooms = RoomModel.find({ isListed: true, isEdited: false })
+        .skip(skip)
+        .limit(limit);
       return rooms;
     } catch (error) {
       console.log(error);
@@ -225,7 +225,10 @@ class UserRepo {
 
   async totalRooms() {
     try {
-      const total = await RoomModel.countDocuments({isListed:true,isEdited:false});
+      const total = await RoomModel.countDocuments({
+        isListed: true,
+        isEdited: false,
+      });
       return total;
     } catch (error) {
       console.log(error);
@@ -241,20 +244,27 @@ class UserRepo {
     }
   }
 
-  async editUser(_id:string, name:string, email:string, phone:string){
+  async editUser(_id: string, name: string, email: string, phone: string) {
     try {
-      let edited = await UserModel.findByIdAndUpdate( _id, 
-        { name, email, number:phone }, 
-        { new: true})
-      return edited;  
+      let edited = await UserModel.findByIdAndUpdate(
+        _id,
+        { name, email, number: phone },
+        { new: true }
+      );
+      return edited;
     } catch (error) {
       console.log(error);
     }
   }
 
-  async fetchNearestRooms(latitude:number,longitude:number,page:number,limit:number,skip:number){
+  async fetchNearestRooms(
+    latitude: number,
+    longitude: number,
+    page: number,
+    limit: number,
+    skip: number
+  ) {
     try {
- 
       let rooms = await RoomModel.aggregate([
         {
           $geoNear: {
@@ -277,17 +287,14 @@ class UserRepo {
           $limit: limit,
         },
       ]);
-      
-    
 
-    return rooms
+      return rooms;
     } catch (error) {
       console.log(error);
-      
     }
   }
 
-  async totalNearRooms(latitude:number,longitude:number){
+  async totalNearRooms(latitude: number, longitude: number) {
     try {
       let roomCount = await RoomModel.aggregate([
         {
@@ -296,7 +303,7 @@ class UserRepo {
             distanceField: "distance",
             spherical: true,
             maxDistance: 5000000,
-          }
+          },
         },
         {
           $match: {
@@ -305,42 +312,60 @@ class UserRepo {
           },
         },
         {
-          $count: "roomCount" 
-        }
+          $count: "roomCount",
+        },
       ]);
       let count = roomCount.length > 0 ? roomCount[0].roomCount : 0;
       return count;
-
     } catch (error) {
       console.log(error);
     }
   }
 
-  async roomBooking(userId:string,roomId:string,slots:number,paymentId:string,roomName:string){
+  async roomBooking(
+    userId: string,
+    roomId: string,
+    slots: number,
+    amount: number,
+    paymentId: string,
+    roomName: string
+  ) {
     try {
       const newBooking = new BookingModel({
-        userId:userId,
-        roomName:roomName,
-        roomId:roomId,
-        slots:slots,
-        paymentId:paymentId
-      })
-      const booked = await newBooking.save()
+        userId: userId,
+        roomName: roomName,
+        roomId: roomId,
+        slots: slots,
+        amount,
+        paymentId: paymentId,
+      });
+      const booked = await newBooking.save();
 
-      if(booked){
+      if (booked) {
         const updatedRoom = await RoomModel.findByIdAndUpdate(
           roomId,
           {
-            $inc: { slots: -slots } 
+            $inc: { slots: -slots },
           },
-          { new: true } 
+          { new: true }
         );
       }
 
       console.log(booked);
-      
 
       return booked;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async fetchBookings(userId: string) {
+    try {
+      const bookings = await BookingModel.find({ userId: userId })
+        .populate("roomId")
+        .exec();
+
+      return bookings;
     } catch (error) {
       console.log(error);
     }

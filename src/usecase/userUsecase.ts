@@ -453,12 +453,13 @@ class UserUseCase {
           idempotencyKey: idempotencyKey,
         }
       );
-
+     let amount = parseInt( room.securityDeposit) * slots
       if (payment) {
         const booked = await this.UserRepo.roomBooking(
           userId,
           roomId,
           slots,
+          amount,
           payment.id,
           room?.name as string
         );
@@ -488,6 +489,21 @@ class UserUseCase {
       };
     }
   }
+
+  async fetchBookings(userId: string) {
+    let bookings = await this.UserRepo.fetchBookings(userId);
+    if(bookings){
+      return {
+        status:200,
+        data:bookings
+      }
+    }else{
+      return {
+        status:400,
+      }
+    }
+  }
+
 }
 
 export default UserUseCase;

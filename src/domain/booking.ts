@@ -3,6 +3,7 @@ interface Booking{
     roomName: string;
     roomId: string;
     slots: number;
+    amount:number;
     paymentId: string;
     status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
     createdAt?: Date; 

@@ -159,3 +159,13 @@ userRoute.post(
     userController.bookRoom(req, res, next);
   }
 )
+
+userRoute.get(
+  "/getbookings/:userId",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {
+    userController.fetchBookings(req, res, next);
+  }
+)
+
+
