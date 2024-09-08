@@ -422,6 +422,19 @@ class UserController {
       next(error);
     }
   }
+
+  async changePassword(req: Request, res: Response, next: NextFunction){
+    try {
+      const {oldPassword,newPassword,email} = req.body
+      console.log('in controller');
+      
+      let response = await this.UserUseCase.changePassword(oldPassword,newPassword,email)
+      return res.status(response.status).json({message:response?.message})
+      
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default UserController;

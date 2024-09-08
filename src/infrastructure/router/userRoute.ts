@@ -168,4 +168,12 @@ userRoute.get(
   }
 )
 
+userRoute.post(
+  "/changePassword",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.changePassword(req, res, next);
+  }
+)
+
 

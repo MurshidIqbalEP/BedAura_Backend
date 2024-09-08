@@ -123,7 +123,6 @@ class UserRepo {
 
   async findUser(email: string) {
     try {
-      console.log("in repo");
       let user = await UserModel.findOne({ email: email });
       return user;
     } catch (error) {

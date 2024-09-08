@@ -453,7 +453,7 @@ class UserUseCase {
           idempotencyKey: idempotencyKey,
         }
       );
-     let amount = parseInt( room.securityDeposit) * slots
+      let amount = parseInt(room.securityDeposit) * slots;
       if (payment) {
         const booked = await this.UserRepo.roomBooking(
           userId,
@@ -492,18 +492,67 @@ class UserUseCase {
 
   async fetchBookings(userId: string) {
     let bookings = await this.UserRepo.fetchBookings(userId);
-    if(bookings){
+    if (bookings) {
       return {
-        status:200,
-        data:bookings
-      }
-    }else{
+        status: 200,
+        data: bookings,
+      };
+    } else {
       return {
-        status:400,
-      }
+        status: 400,
+      };
     }
   }
 
+  async changePassword(
+    oldPassword: string,
+    newPassword: string,
+    email: string
+  ) {
+    console.log('in usecase');
+    
+    const user = await this.UserRepo.findUser(email);
+
+    if (!user) {
+      return {
+        status: 400,
+        message: "User not found",
+      };
+    }
+
+    const passwordMatch = await this.EncriptPassword.compare(
+      oldPassword,
+      user.password
+    );
+
+    if (!passwordMatch) {
+      return {
+        status: 400,
+        message: "Old password is incorrect",
+      };
+    }
+
+    const hashedPassword = await this.EncriptPassword.encryptPassword(
+      newPassword
+    );
+
+    const passwordUpdated = await this.UserRepo.changePass(
+      email,
+      hashedPassword
+    );
+
+    if (passwordUpdated) {
+      return {
+        status: 200,
+        message: "Password change successful",
+      };
+    }else{
+      return {
+        status: 500,
+        message: "Password update failed",
+      };
+    }
+  }
 }
 
 export default UserUseCase;
