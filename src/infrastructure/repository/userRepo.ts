@@ -3,6 +3,8 @@ import otpModel from "../database/otpModel";
 import RoomModel from "../database/roomModel";
 import BookingModel from "../database/bookingModel";
 import Room, { IRoom } from "../../domain/room";
+import walletModel from "../database/walletModel";
+import WalletModel from "../database/walletModel";
 
 class UserRepo {
   constructor() {}
@@ -365,6 +367,29 @@ class UserRepo {
         .exec();
 
       return bookings;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async fetchWallet(userId: string) {
+    try {
+      const wallet = await walletModel.findOne({ userId: userId });
+      return wallet;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async createWallet(userId: string) {
+    try {
+      const newWallet = new WalletModel({
+        userId,
+        balance: 0,
+        transactions: [],
+      });
+      await newWallet.save();
+      return newWallet;
     } catch (error) {
       console.log(error);
     }

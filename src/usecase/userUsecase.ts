@@ -6,6 +6,8 @@ import JwtToken from "../infrastructure/services/generateToken";
 import Room, { IRoom } from "../domain/room";
 import Stripe from "stripe";
 import { v4 as uuidv4 } from "uuid";
+import WalletModel from "../infrastructure/database/walletModel";
+import IWallet from "../domain/wallet";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -464,6 +466,29 @@ class UserUseCase {
           room?.name as string
         );
 
+        // Fetch or create the room owner's wallet
+        let wallet = await WalletModel.findOne({ userId: room.userId });
+        if (!wallet) {
+          const newWallet = await this.UserRepo.createWallet(
+            room.userId as string
+          );
+          if (newWallet) {
+            wallet = newWallet;
+          }
+        }
+
+        // Add the booking amount to the owner's wallet
+        wallet!.balance += amount;
+        wallet!.transactions.push({
+          amount,
+          description: `Room booked: ${room?.name}`,
+          transactionType: "credit",
+          date: new Date(),
+        });
+
+        // Save the updated wallet
+        await wallet!.save();
+
         if (booked) {
           return {
             status: 200,
@@ -509,8 +534,8 @@ class UserUseCase {
     newPassword: string,
     email: string
   ) {
-    console.log('in usecase');
-    
+    console.log("in usecase");
+
     const user = await this.UserRepo.findUser(email);
 
     if (!user) {
@@ -546,10 +571,30 @@ class UserUseCase {
         status: 200,
         message: "Password change successful",
       };
-    }else{
+    } else {
       return {
         status: 500,
         message: "Password update failed",
+      };
+    }
+  }
+
+  async fetchWallet(userId: string) {
+    const wallet = await this.UserRepo.fetchWallet(userId);
+    console.log(wallet);
+    
+    if (wallet) {
+      return {
+        status: 200,
+        data: wallet,
+      };
+    } else {
+      const newWallet = await this.UserRepo.createWallet(userId);
+      console.log(newWallet);
+      
+      return {
+        status: 200,
+        data: newWallet,
       };
     }
   }

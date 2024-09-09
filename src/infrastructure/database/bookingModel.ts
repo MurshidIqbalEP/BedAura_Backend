@@ -13,7 +13,7 @@ interface IBooking extends Document {
   updatedAt?: Date;
 }
 
-// Define the Booking schema
+
 const bookingSchema = new Schema<IBooking>({
   userId: {
     type: mongoose.Schema.Types.ObjectId,

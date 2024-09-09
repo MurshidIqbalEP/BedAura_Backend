@@ -426,10 +426,23 @@ class UserController {
   async changePassword(req: Request, res: Response, next: NextFunction){
     try {
       const {oldPassword,newPassword,email} = req.body
-      console.log('in controller');
+      
       
       let response = await this.UserUseCase.changePassword(oldPassword,newPassword,email)
       return res.status(response.status).json({message:response?.message})
+      
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchWallet (req: Request, res: Response, next: NextFunction){
+    try {
+      const { userId } = req.params; 
+    
+      
+      let response = await this.UserUseCase.fetchWallet(userId)
+      return res.status(response.status).json(response)
       
     } catch (error) {
       next(error);

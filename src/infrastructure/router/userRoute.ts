@@ -176,4 +176,12 @@ userRoute.post(
   }
 )
 
+userRoute.get(
+  "/fetchWallet/:userId",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.fetchWallet(req, res, next);
+  }
+)
+
 
