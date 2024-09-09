@@ -5,6 +5,7 @@ import BookingModel from "../database/bookingModel";
 import Room, { IRoom } from "../../domain/room";
 import walletModel from "../database/walletModel";
 import WalletModel from "../database/walletModel";
+import ReviewModel from "../database/reviewModel";
 
 class UserRepo {
   constructor() {}
@@ -390,6 +391,21 @@ class UserRepo {
       });
       await newWallet.save();
       return newWallet;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async postReview(roomId:string,userId:string,rating:number,review:string){
+    try {
+      const newReview = new ReviewModel({
+        userId,
+        roomId,
+        rating,
+        review
+      })
+      await newReview.save()
+      return newReview
     } catch (error) {
       console.log(error);
     }

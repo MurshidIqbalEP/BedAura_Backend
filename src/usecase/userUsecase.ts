@@ -581,7 +581,6 @@ class UserUseCase {
 
   async fetchWallet(userId: string) {
     const wallet = await this.UserRepo.fetchWallet(userId);
-    console.log(wallet);
     
     if (wallet) {
       return {
@@ -597,6 +596,21 @@ class UserUseCase {
         data: newWallet,
       };
     }
+  }
+
+  async postReview(roomId:string,userId:string,rating:number,review:string){
+      const posted = await this.UserRepo.postReview(roomId,userId,rating,review)
+      if(posted){
+        return{
+          status:200,
+          message:"review posted"
+        }
+      }else{
+        return{
+          status:400,
+          message:"failed to post review"
+        }
+      }
   }
 }
 

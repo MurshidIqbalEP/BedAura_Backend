@@ -412,37 +412,48 @@ class UserController {
     }
   }
 
-  async fetchBookings(req: Request, res: Response, next: NextFunction){
+  async fetchBookings(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId } = req.params; 
-      
-      let response = await this.UserUseCase.fetchBookings(userId)
-      return res.status(response.status).json(response.data)
+      const { userId } = req.params;
+
+      let response = await this.UserUseCase.fetchBookings(userId);
+      return res.status(response.status).json(response.data);
     } catch (error) {
       next(error);
     }
   }
 
-  async changePassword(req: Request, res: Response, next: NextFunction){
+  async changePassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const {oldPassword,newPassword,email} = req.body
-      
-      
-      let response = await this.UserUseCase.changePassword(oldPassword,newPassword,email)
-      return res.status(response.status).json({message:response?.message})
-      
+      const { oldPassword, newPassword, email } = req.body;
+
+      let response = await this.UserUseCase.changePassword(
+        oldPassword,
+        newPassword,
+        email
+      );
+      return res.status(response.status).json({ message: response?.message });
     } catch (error) {
       next(error);
     }
   }
 
-  async fetchWallet (req: Request, res: Response, next: NextFunction){
+  async fetchWallet(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId } = req.params; 
-    
-      
-      let response = await this.UserUseCase.fetchWallet(userId)
-      return res.status(response.status).json(response)
+      const { userId } = req.params;
+
+      let response = await this.UserUseCase.fetchWallet(userId);
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async postReview(req: Request, res: Response, next: NextFunction){
+    try {
+      const { roomId,userId,rating,review } = req.body;
+      let response = await this.UserUseCase.postReview(roomId,userId,rating,review);
+      return res.status(response.status).json(response.message);
       
     } catch (error) {
       next(error);

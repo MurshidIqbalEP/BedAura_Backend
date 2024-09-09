@@ -184,4 +184,12 @@ userRoute.get(
   }
 )
 
+userRoute.post(
+  "/postReview",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.postReview(req, res, next);
+  }
+)
+
 
