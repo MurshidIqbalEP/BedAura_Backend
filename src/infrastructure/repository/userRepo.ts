@@ -410,6 +410,17 @@ class UserRepo {
       console.log(error);
     }
   }
+
+  async fetchReviews(roomId:string){
+    try {
+      const reviews = await ReviewModel.find({ roomId: roomId }).populate("userId")
+      .exec();
+
+      return reviews;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default UserRepo;

@@ -184,6 +184,14 @@ userRoute.get(
   }
 )
 
+userRoute.get(
+  "/fetchReviews/:roomId",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.fetchReviews(req, res, next);
+  }
+)
+
 userRoute.post(
   "/postReview",
   userAuth,

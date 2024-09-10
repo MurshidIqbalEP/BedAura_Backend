@@ -598,6 +598,21 @@ class UserUseCase {
     }
   }
 
+  async fetchReviews(roomId:string){
+    const reviews = await this.UserRepo.fetchReviews(roomId);
+    if(reviews){
+      return {
+        status:200,
+        reviews
+      }
+    }else{
+      return{
+        status:400,
+        message:"failed to fetch reviews"
+      }
+    }
+  }
+
   async postReview(roomId:string,userId:string,rating:number,review:string){
       const posted = await this.UserRepo.postReview(roomId,userId,rating,review)
       if(posted){

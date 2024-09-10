@@ -449,6 +449,16 @@ class UserController {
     }
   }
 
+  async fetchReviews(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { roomId } = req.params;
+      let response = await this.UserUseCase.fetchReviews(roomId);
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async postReview(req: Request, res: Response, next: NextFunction){
     try {
       const { roomId,userId,rating,review } = req.body;
