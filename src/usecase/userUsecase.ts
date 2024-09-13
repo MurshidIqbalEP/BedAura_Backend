@@ -627,6 +627,55 @@ class UserUseCase {
         }
       }
   }
+
+  async addMessage(sender:string,reciever:string,message:string){
+    const added = await this.UserRepo.addMessage(sender,reciever,message)
+    const setConversation = await this.UserRepo.setConversation(sender,reciever,message)
+    if(added&&setConversation){
+      return{
+        status:200,
+        message:"msg added"
+      }
+    }else{
+      return{
+        status:400,
+        message:"failed to add message"
+      }
+    }
+  }
+
+  async fetchMessages(sender:string,reciever:string){
+    const messages = await this.UserRepo.fetchMessages(sender,reciever)
+    if(messages){
+      return{
+        status:200,
+        data:messages
+      }
+    }else{
+      return{
+        status:400,
+        message:"failed to fetch message"
+      }
+    }
+  }
+
+  async fetchContacts(currentUserId:string){
+    const messages = await this.UserRepo.fetchContacts(currentUserId)
+    
+    
+    if(messages){
+      return{
+        status:200,
+        data:messages
+      }
+    }else{
+      return{
+        status:400,
+        message:"failed to fetch message"
+      }
+    }
+  }
+
 }
 
 export default UserUseCase;

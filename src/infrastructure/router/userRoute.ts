@@ -200,4 +200,30 @@ userRoute.post(
   }
 )
 
+userRoute.post(
+  "/addMessage",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    
+    
+    userController.addMessage(req, res, next);
+  }
+)
+
+userRoute.get(
+  "/fetchMessages",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.fetchMessages(req, res, next);
+  }
+)
+
+userRoute.get(
+  "/fetchContacts",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.fetchContacts(req, res, next);
+  }
+)
+
 

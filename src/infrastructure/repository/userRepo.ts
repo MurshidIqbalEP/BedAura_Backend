@@ -6,6 +6,8 @@ import Room, { IRoom } from "../../domain/room";
 import walletModel from "../database/walletModel";
 import WalletModel from "../database/walletModel";
 import ReviewModel from "../database/reviewModel";
+import MessageModel from "../database/messageModel";
+import ConversationModel from "../database/conversationModal";
 
 class UserRepo {
   constructor() {}
@@ -417,6 +419,105 @@ class UserRepo {
       .exec();
 
       return reviews;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async addMessage(sender:string,reciever:string,message:string){
+    try {
+      
+       const newMessage = new MessageModel({
+        senderId:sender,
+        users:[sender,reciever],
+        message:message
+       })
+       await newMessage.save()
+       return newMessage;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async setConversation(sender: string, receiver: string, message: string) {
+    try {
+      const exist = await ConversationModel.findOne({
+        $or: [
+          { senderId: sender, receiverId: receiver }, 
+          { senderId: receiver, receiverId: sender }
+        ]
+      });
+      if (exist) {
+        exist.message = message;
+        await exist.save();
+      } else {
+        const newConversation = new ConversationModel({
+          senderId: sender,
+          receiverId: receiver,
+          message: message
+        });
+        await newConversation.save();
+      }
+      return true
+    } catch (error) {
+      console.error('Error in setConversation:', error);
+    }
+  }
+  
+
+  async fetchMessages(sender:string,reciever:string){
+    try {
+      const msgs = await MessageModel.find({
+        users:{
+          $all:[sender,reciever]
+        }
+      }).sort({updatedAt:1})
+
+      const projectedMessages = msgs.map((msg)=>{
+        return {
+          fromSelf: msg.senderId.toString() === sender,
+          message: msg.message
+        }
+      });
+
+      return projectedMessages
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
+
+  async fetchContacts (currentUserId:string){
+    try {
+      
+      const conversations = await ConversationModel.find({
+        $or: [{ senderId: currentUserId }, { receiverId: currentUserId }]
+      }).populate('senderId receiverId');
+
+      
+      const otherPersonsData = conversations.map((conversation) => {
+        // Check if currentUserId is the sender, if so, return the receiver's data
+        if (conversation.senderId._id.toString() === currentUserId) {
+          return {
+            id: conversation.receiverId._id,
+            name: conversation.receiverId.name,
+            image: conversation.receiverId.image,
+            message: conversation.message,
+            updatedAt: conversation.updatedAt, 
+          };
+        } else {
+          // If currentUserId is the receiver, return the sender's data
+          return {
+            id: conversation.senderId._id,
+            name: conversation.senderId.name,
+            image: conversation.senderId.image,
+            message: conversation.message, 
+            updatedAt: conversation.updatedAt, 
+          };
+        }
+      });
+       return otherPersonsData;
+      
     } catch (error) {
       console.log(error);
     }

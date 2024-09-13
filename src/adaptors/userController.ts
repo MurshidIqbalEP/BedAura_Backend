@@ -459,12 +459,60 @@ class UserController {
     }
   }
 
-  async postReview(req: Request, res: Response, next: NextFunction){
+  async postReview(req: Request, res: Response, next: NextFunction) {
     try {
-      const { roomId,userId,rating,review } = req.body;
-      let response = await this.UserUseCase.postReview(roomId,userId,rating,review);
+      const { roomId, userId, rating, review } = req.body;
+      let response = await this.UserUseCase.postReview(
+        roomId,
+        userId,
+        rating,
+        review
+      );
       return res.status(response.status).json(response.message);
-      
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async addMessage(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { sender, reciever, message } = req.body;
+
+      let response = await this.UserUseCase.addMessage(
+        sender,
+        reciever,
+        message
+      );
+      return res.status(response.status).json(response.message);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchMessages(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { sender, receiver } = req.query;
+      let response = await this.UserUseCase.fetchMessages(
+        sender as string,
+        receiver as string
+      );
+
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchContacts(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { currentUserId } = req.query;
+      console.log(currentUserId);
+
+      let response = await this.UserUseCase.fetchContacts(
+        currentUserId as string
+      );
+
+      return res.status(response.status).json(response);
     } catch (error) {
       next(error);
     }
