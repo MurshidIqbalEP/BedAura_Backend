@@ -662,7 +662,6 @@ class UserUseCase {
   async fetchContacts(currentUserId:string){
     const messages = await this.UserRepo.fetchContacts(currentUserId)
     
-    
     if(messages){
       return{
         status:200,
@@ -674,6 +673,21 @@ class UserUseCase {
         message:"failed to fetch message"
       }
     }
+  }
+
+  async fetchOwnerDetails(ownerUserId:string){
+      const owner = await this.UserRepo.fetchOwnerDetails(ownerUserId)
+      if(owner){
+        return{
+          status:200,
+          owner
+        }
+      }else{
+        return{
+          status:400,
+          message:"failed to fetch owner"
+        }
+      }
   }
 
 }

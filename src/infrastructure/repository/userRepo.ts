@@ -522,6 +522,11 @@ class UserRepo {
       console.log(error);
     }
   }
+
+  async fetchOwnerDetails (ownerUserId:string){
+    const owner = await UserModel.findById(ownerUserId,{name:1,image:1})
+    return owner
+  }
 }
 
 export default UserRepo;

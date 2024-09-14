@@ -517,6 +517,20 @@ class UserController {
       next(error);
     }
   }
+
+  async fetchOwnerDetails(req: Request, res: Response, next: NextFunction){
+    try {
+      const { ownerUserId } = req.query;
+
+      let response = await this.UserUseCase.fetchOwnerDetails(
+        ownerUserId as string
+      );
+
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default UserController;

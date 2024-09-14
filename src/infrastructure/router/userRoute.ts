@@ -226,4 +226,12 @@ userRoute.get(
   }
 )
 
+userRoute.get(
+  "/fetchOwnerDetails",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.fetchOwnerDetails(req, res, next);
+  }
+)
+
 
