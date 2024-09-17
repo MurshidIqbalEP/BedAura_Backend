@@ -78,6 +78,14 @@ io.on('connection', (socket) => {
     io.to(room).emit('receiveMessage', messageData);
   });
 
+  socket.on("videoCall", ({ senderId, receiverId, roomId }) => {
+    console.log(" video call emitted",senderId);
+    
+    const room = getRoomId(senderId, receiverId);
+    io.to(room).emit("receiveVideoCall", { senderId, roomId });
+    
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });

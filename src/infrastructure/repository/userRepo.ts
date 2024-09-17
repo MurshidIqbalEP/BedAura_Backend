@@ -494,6 +494,12 @@ class UserRepo {
         $or: [{ senderId: currentUserId }, { receiverId: currentUserId }]
       }).populate('senderId receiverId');
 
+      console.log(conversations);
+      
+      
+      if (!conversations || conversations.length === 0) {
+        return []; 
+      }
       
       const otherPersonsData = conversations.map((conversation) => {
         // Check if currentUserId is the sender, if so, return the receiver's data
@@ -516,6 +522,8 @@ class UserRepo {
           };
         }
       });
+       
+      
        return otherPersonsData;
       
     } catch (error) {

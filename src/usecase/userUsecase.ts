@@ -660,7 +660,9 @@ class UserUseCase {
   }
 
   async fetchContacts(currentUserId:string){
+    
     const messages = await this.UserRepo.fetchContacts(currentUserId)
+   console.log(messages);
     
     if(messages){
       return{
