@@ -32,7 +32,6 @@ app.use(express.urlencoded({extended:true}))
 
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.resolve(__dirname, '../../../uploads')));
-console.log(path.resolve(__dirname, '../../../uploads'));
 
 app.use(cors({
   origin: process.env.CORS_URL,
@@ -80,10 +79,10 @@ io.on('connection', (socket) => {
 
   socket.on("videoCall", ({ senderId, receiverId, roomId }) => {
     console.log(" video call emitted",senderId);
-    
+
     const room = getRoomId(senderId, receiverId);
     io.to(room).emit("receiveVideoCall", { senderId, roomId });
-    
+     
   });
 
   socket.on('disconnect', () => {

@@ -148,6 +148,7 @@ class UserRepo {
   }
 
   async addRoom(roomData: IRoom) {
+    
     try {
       const Room = new RoomModel({
         name: roomData.name,
@@ -161,6 +162,7 @@ class UserRepo {
         noticePeriod: roomData.noticePeriod,
         location: roomData.location,
         description: roomData.description,
+        additionalOptions:roomData.additionalOptions,
         coordinates: {
           type: "Point",
           coordinates: [roomData.coordinates.lng, roomData.coordinates.lat],
@@ -168,7 +170,6 @@ class UserRepo {
         images: roomData.images,
       });
       let newRoom = await Room.save();
-
       if (newRoom) {
         return newRoom;
       }
@@ -191,6 +192,7 @@ class UserRepo {
           noticePeriod: roomData.noticePeriod,
           location: roomData.location,
           description: roomData.description,
+          additionalOptions:roomData.additionalOptions,
           coordinates: {
             type: "Point",
             coordinates: [roomData.coordinates.lng, roomData.coordinates.lat],
@@ -218,7 +220,7 @@ class UserRepo {
 
   async fetchAllRooms(page: number, limit: number, skip: number) {
     try {
-      let rooms = RoomModel.find({ isListed: true, isEdited: false })
+      let rooms = RoomModel.find({ isListed: true, isEdited: false,isApproved:true })
         .skip(skip)
         .limit(limit);
       return rooms;
@@ -232,6 +234,7 @@ class UserRepo {
       const total = await RoomModel.countDocuments({
         isListed: true,
         isEdited: false,
+        isApproved:true 
       });
       return total;
     } catch (error) {
@@ -476,7 +479,8 @@ class UserRepo {
       const projectedMessages = msgs.map((msg)=>{
         return {
           fromSelf: msg.senderId.toString() === sender,
-          message: msg.message
+          message: msg.message,
+          timestamp: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
         }
       });
 

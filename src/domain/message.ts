@@ -4,7 +4,7 @@ interface Message{
     senderId:Types.ObjectId;
     users:Types.ObjectId[];
     message:string;
-    date:Date;
+    createdAt:Date;
  }
  
  export default Message;

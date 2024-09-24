@@ -17,6 +17,9 @@ const optionsSchema: Schema<Options> = new Schema({
     noticePeriod:{
         type:[String],
         required:true
+    },
+    AdditionalOptions:{
+        type:[String],
     }
 });
 

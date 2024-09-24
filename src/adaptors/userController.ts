@@ -35,7 +35,6 @@ class UserController {
     try {
       res.clearCookie("refreshtoken", {
         httpOnly: true,
-        sameSite: "none",
         secure: false,
       });
       res.json({ message: "cookie cleared" });
@@ -97,12 +96,13 @@ class UserController {
       console.log("refresh token" + "-----" + refreshToken);
       console.log(user.data);
 
+      res.cookie('hy', 'testig');
+
       res.cookie("refreshtoken", refreshToken, {
         httpOnly: true,
-        maxAge: MAX_AGE, // 7 days
-        secure: false,
+        // maxAge: MAX_AGE, // 7 days
+        secure: true,
         // secure: process.env.NODE_ENV !== "development",
-        sameSite: "none",
         // sameSite:process.env.NODE_ENV !== "development" ? "none" : "strict",
       });
 
@@ -115,13 +115,16 @@ class UserController {
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("refresh token ethi");
-      console.log(req.cookies.refreshtoken);
+      console.log(req);
       const refreshToken = req.cookies.refreshtoken;
+      console.log(req.cookies.refreshtoken);
       if (!refreshToken) {
         console.log("senindg 400");
         return res.sendStatus(400); // Unauthorized
       }
       const result = await this.UserUseCase.refreshTokenUseCase(refreshToken);
+      console.log("new AccessToken----"+result.newAccessToken );
+      
       return res
         .status(result.status)
         .json({ accessToken: result.newAccessToken });
@@ -206,13 +209,11 @@ class UserController {
       console.log(userId);
 
       const coordinates = JSON.parse(req.body.coordinates);
-
-      const images = req.body.images; // Multer will handle this as an array automatically
-
+      const additionalOptions = JSON.parse(req.body.additionalOptions || '[]'); 
+      
+      const images = req.body.images; 
       // If the images come in as a single item, ensure it's treated as an array
       const imagesArray = Array.isArray(images) ? images : [images];
-      console.log(imagesArray);
-
       const roomData = {
         name,
         userId,
@@ -226,10 +227,9 @@ class UserController {
         location,
         description,
         coordinates,
+        additionalOptions,
         images: imagesArray,
       };
-
-      console.log(roomData);
 
       let response = await this.UserUseCase.addNewRoom(roomData);
 
@@ -269,7 +269,7 @@ class UserController {
       } catch (parseError) {
         return res.status(400).json({ error: "Invalid coordinates format" });
       }
-
+      const additionalOptions = JSON.parse(req.body.additionalOptions || '[]'); 
       const images = req.body.images; // Multer will handle this as an array automatically
 
       // If the images come in as a single item, ensure it's treated as an array
@@ -290,6 +290,7 @@ class UserController {
         location,
         description,
         coordinates,
+        additionalOptions,
         images: imagesArray, // using combined images
       };
 
@@ -518,7 +519,7 @@ class UserController {
     }
   }
 
-  async fetchOwnerDetails(req: Request, res: Response, next: NextFunction){
+  async fetchOwnerDetails(req: Request, res: Response, next: NextFunction) {
     try {
       const { ownerUserId } = req.query;
 

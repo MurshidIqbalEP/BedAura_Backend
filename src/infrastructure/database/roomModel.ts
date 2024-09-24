@@ -66,6 +66,9 @@ const uroomSchema: Schema<Room> = new Schema({
       required: true,
     },
   },
+  additionalOptions:{
+    type:[String],
+  },
   images: {
     type: [String],
     required: true,

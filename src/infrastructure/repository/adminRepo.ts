@@ -82,10 +82,14 @@ class AdminRepo {
     }
 
     async removeOption(category:string,newValue:string){
+        console.log(category,newValue);
+        
         let removed = await optionsModel.updateOne(
             {  },
             { $pull: { [category]: newValue } }
         );
+        console.log(removed);
+        
         return removed;
     }
 

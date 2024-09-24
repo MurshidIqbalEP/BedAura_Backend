@@ -19,6 +19,7 @@
         type: 'Point'; 
         coordinates: [number, number]; // [longitude, latitude]
     };
+    additionalOptions:string[];
     images: string[];
 }
 
@@ -35,6 +36,7 @@
     noticePeriod:string,
     location:string,
     description:string,
+    additionalOptions:string[]
     coordinates: { lat: number, lng: number }
     images: string[];
 }

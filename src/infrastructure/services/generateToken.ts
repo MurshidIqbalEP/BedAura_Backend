@@ -15,7 +15,7 @@ class JWTToken  {
 
    generateRefreshToken = (userId:string,role: string) => {
         const RefreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string
-        const RefreshToken =  jwt.sign({userId,role },RefreshTokenSecret, { expiresIn: '70d' }); 
+        const RefreshToken =  jwt.sign({userId,role },RefreshTokenSecret, { expiresIn: '10d' }); 
         return RefreshToken;
     };
 
