@@ -8,6 +8,7 @@ import Stripe from "stripe";
 import { v4 as uuidv4 } from "uuid";
 import WalletModel from "../infrastructure/database/walletModel";
 import IWallet from "../domain/wallet";
+import BookingWithRoom from "../domain/bookingWithRoom";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -424,7 +425,9 @@ class UserUseCase {
     token: any,
     roomId: string,
     userId: string,
-    slots: number
+    formData: {numberOfSlots: number,
+      checkInDate: Date,
+      checkOutDate:Date }
   ): Promise<{ status: number; message: string }> {
     try {
       // Fetch room details
@@ -441,7 +444,7 @@ class UserUseCase {
       const securityDeposit = room?.securityDeposit
         ? parseInt(room.securityDeposit, 10)
         : 0;
-      const total = securityDeposit * slots;
+      const total = securityDeposit;
 
       const idempotencyKey = uuidv4();
       const payment = await stripe.charges.create(
@@ -455,15 +458,19 @@ class UserUseCase {
           idempotencyKey: idempotencyKey,
         }
       );
-      let amount = parseInt(room.securityDeposit) * slots;
+
+      
+      let amount = total ;
       if (payment) {
+       
         const booked = await this.UserRepo.roomBooking(
           userId,
           roomId,
-          slots,
           amount,
           payment.id,
-          room?.name as string
+          room?.name as string,
+          formData.checkInDate,
+          formData.checkOutDate,
         );
 
         // Fetch or create the room owner's wallet
@@ -690,6 +697,71 @@ class UserUseCase {
           message:"failed to fetch owner"
         }
       }
+  }
+
+  async checkBookingDateValid (roomId:string,checkIn:Date,checkOut:Date){
+     const validBookingDate = await this.UserRepo.checkBookingDateValid(roomId,checkIn,checkOut)
+     if(validBookingDate=== false){
+      return{
+        status:200,
+        result:true,
+        message:"Valid booking Date"
+      }
+     }else{
+      return{
+      status:200,
+      result:false,
+      message:"InValid booking Date"
+      }
+     }
+  }
+
+  async cancelBooking(room:any){
+    console.log(room);
+    
+    const booking = await this.UserRepo.fetchBooking(room._id)
+
+    if(!booking){
+      return {
+        status: 400,
+        message: `Cannot cancel the booking. booking is not existing`,
+      };
+    }
+    
+    const noticePeriodDays = parseInt(room.roomId.noticePeriod.split(" ")[0], 10);
+    const bookingDate = new Date(room.createdAt);
+    const currentDate = new Date();
+
+    // Calculate the last cancellation date (bookingDate + noticePeriod)
+    const lastCancellationDate = new Date(bookingDate);
+    lastCancellationDate.setDate(lastCancellationDate.getDate() + noticePeriodDays);
+    if (currentDate > lastCancellationDate) {
+      return {
+        status: 400,
+        message: `Cannot cancel the booking. The notice period of ${noticePeriodDays} days has expired.`,
+      };
+    }
+
+    // if (room.paymentId) {
+    //   await stripe.refunds.create({
+    //     payment_intent: room.paymentId,
+    //   });
+    // }
+
+    const refundAmount = room.amount;
+
+     //Update the wallet of the room owner and user
+     await this.UserRepo.decreaseWallet(room.roomId.userId,refundAmount,booking.roomName);
+     await this.UserRepo.addMoneyWallet(room.userId,refundAmount,booking.roomName);
+
+     await this.UserRepo.RemoveBooking(booking._id as string)
+
+     return{
+        status:200,
+        message:"booking canceled, check your Wallet"
+     }
+     
+    
   }
 
 }

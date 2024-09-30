@@ -332,33 +332,23 @@ class UserRepo {
   async roomBooking(
     userId: string,
     roomId: string,
-    slots: number,
     amount: number,
     paymentId: string,
-    roomName: string
+    roomName: string,
+    checkInDate:Date,
+    checkOutDate:Date
   ) {
     try {
       const newBooking = new BookingModel({
         userId: userId,
         roomName: roomName,
         roomId: roomId,
-        slots: slots,
         amount,
+        checkIn:checkInDate,
+        checkOut:checkOutDate,
         paymentId: paymentId,
       });
       const booked = await newBooking.save();
-
-      if (booked) {
-        const updatedRoom = await RoomModel.findByIdAndUpdate(
-          roomId,
-          {
-            $inc: { slots: -slots },
-          },
-          { new: true }
-        );
-      }
-
-      console.log(booked);
 
       return booked;
     } catch (error) {
@@ -378,9 +368,24 @@ class UserRepo {
     }
   }
 
+  async fetchBooking(bookingId: string) {
+    try {
+      const booking = await BookingModel.findById(bookingId)
+        .populate("roomId")
+        .exec()
+
+      return booking;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async fetchWallet(userId: string) {
     try {
-      const wallet = await walletModel.findOne({ userId: userId });
+      const wallet = await walletModel.findOne({ userId: userId }).lean().exec();
+      if (wallet && wallet.transactions) {
+        wallet.transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      }
       return wallet;
     } catch (error) {
       console.log(error);
@@ -396,6 +401,51 @@ class UserRepo {
       });
       await newWallet.save();
       return newWallet;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async decreaseWallet(userId:string,refundAmount:number,roomName:string){
+    try {
+      const wallet = await WalletModel.findOne({ userId: userId });
+     if (wallet) {
+       wallet.balance -= refundAmount; // Deduct the refunded amount
+       wallet.transactions.push({
+         amount: refundAmount,
+         description: `Refund for booking cancellation: ${roomName}`,
+         transactionType: "debit",
+         date: new Date(),
+       });
+       await wallet.save();
+     }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async addMoneyWallet(userId:string,refundAmount:number,roomName:string){
+    try {
+      const wallet = await WalletModel.findOne({ userId: userId });
+     if (wallet) {
+       wallet.balance += refundAmount; // add the refunded amount
+       wallet.transactions.push({
+         amount: refundAmount,
+         description: `Refund for booking cancellation: ${roomName}`,
+         transactionType: "credit",
+         date: new Date(),
+       });
+       await wallet.save();
+     }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async RemoveBooking(bookingId:string){
+    try {
+      const deleted = await BookingModel.findByIdAndDelete(bookingId);
+      return deleted ?true : false;
     } catch (error) {
       console.log(error);
     }
@@ -538,6 +588,24 @@ class UserRepo {
   async fetchOwnerDetails (ownerUserId:string){
     const owner = await UserModel.findById(ownerUserId,{name:1,image:1})
     return owner
+  }
+
+  async checkBookingDateValid(roomId:string,checkInISO:Date,checkOutISO:Date){
+     const bookings = await BookingModel.find({
+      roomId: roomId,
+      $or: [
+        { checkIn: { $lt: checkOutISO, $gte: checkInISO } }, // Condition 1
+        { checkOut: { $gt: checkInISO, $lte: checkOutISO } }, // Condition 2
+        { $and: [ // Condition 3
+            { checkIn: { $lte: checkInISO } },
+            { checkOut: { $gte: checkOutISO } }
+          ]
+        }
+      ]
+     })
+
+     return bookings.length > 0;
+     
   }
 }
 

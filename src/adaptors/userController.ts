@@ -400,12 +400,14 @@ class UserController {
 
   async bookRoom(req: Request, res: Response, next: NextFunction) {
     try {
-      const { token, roomId, userId, slots } = req.body;
+      const { token, roomId, userId, formData } = req.body;
+      console.log(token, roomId, userId, formData);
+      
       let response = await this.UserUseCase.bookRoom(
         token,
         roomId,
         userId,
-        slots
+        formData
       );
       return res.status(response?.status).json(response?.message);
     } catch (error) {
@@ -528,6 +530,33 @@ class UserController {
       );
 
       return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async cancelBooking(req: Request, res: Response, next: NextFunction){
+    try {
+       const {room} = req.body
+      let response = await this.UserUseCase.cancelBooking(room)
+    return res.status(response.status).json(response.message)
+       
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async checkBookingValid(req: Request, res: Response, next: NextFunction){
+    try {
+       const {roomId,checkIn,checkOut} = req.query;
+       const checkInDate = new Date(checkIn as string);
+    const checkOutDate = new Date(checkOut as string);
+
+      let response = await this.UserUseCase.checkBookingDateValid(roomId as string,checkInDate,checkOutDate)
+
+      
+    return res.status(response.status).json(response)
+       
     } catch (error) {
       next(error);
     }

@@ -4,6 +4,8 @@ import mongoose, { Model, Schema, Document } from "mongoose";
 interface IBooking extends Document {
   userId: mongoose.Types.ObjectId;
   roomName: string;
+  checkIn:Date;
+  checkOut:Date;
   roomId: mongoose.Types.ObjectId;
   slots: number;
   amount:number;
@@ -27,10 +29,8 @@ const bookingSchema = new Schema<IBooking>({
   roomId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Room',
   },
-  slots: {
-    type: Number,
-    required: true,
-  },
+  checkIn: { type: Date, required: true },
+  checkOut: { type: Date, required: true },
   amount:{
     type:Number,
     required:true

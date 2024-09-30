@@ -1,9 +1,9 @@
+import Room from "./room";
 
-
-interface Booking{
+interface BookingWithRoom{
     userId: string;
     roomName: string;
-    roomId: string;
+    roomId: Room;
     slots: number;
     amount:number;
     paymentId: string;
@@ -11,7 +11,5 @@ interface Booking{
     createdAt?: Date; 
     updatedAt?: Date; 
  }
- 
- export default Booking;
 
- 
+ export default BookingWithRoom;

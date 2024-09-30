@@ -234,4 +234,18 @@ userRoute.get(
   }
 )
 
+userRoute.post("/cancelBooking",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.cancelBooking(req, res, next);
+  }
+)
+
+userRoute.get("/checkBookingValid",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.checkBookingValid(req, res, next);
+  }
+)
+
 
