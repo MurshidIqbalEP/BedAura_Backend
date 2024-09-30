@@ -561,6 +561,17 @@ class UserController {
       next(error);
     }
   }
+
+  async walletRoomBooking(req: Request, res: Response, next: NextFunction){
+    try {
+      const {roomId,userId,formData} = req.body;
+     let response = await this.UserUseCase.walletRoomBooking(roomId,userId,formData)
+     return res.status(response.status).json(response)
+      
+   } catch (error) {
+     next(error);
+   }
+  }
 }
 
 export default UserController;

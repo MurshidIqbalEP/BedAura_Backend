@@ -472,29 +472,8 @@ class UserUseCase {
           formData.checkInDate,
           formData.checkOutDate,
         );
-
-        // Fetch or create the room owner's wallet
-        let wallet = await WalletModel.findOne({ userId: room.userId });
-        if (!wallet) {
-          const newWallet = await this.UserRepo.createWallet(
-            room.userId as string
-          );
-          if (newWallet) {
-            wallet = newWallet;
-          }
-        }
-
-        // Add the booking amount to the owner's wallet
-        wallet!.balance += amount;
-        wallet!.transactions.push({
-          amount,
-          description: `Room booked: ${room?.name}`,
-          transactionType: "credit",
-          date: new Date(),
-        });
-
-        // Save the updated wallet
-        await wallet!.save();
+        
+        await this.UserRepo.addBookingMoneyWallet(room.userId as string,amount,room.name)
 
         if (booked) {
           return {
@@ -717,8 +696,6 @@ class UserUseCase {
   }
 
   async cancelBooking(room:any){
-    console.log(room);
-    
     const booking = await this.UserRepo.fetchBooking(room._id)
 
     if(!booking){
@@ -760,8 +737,49 @@ class UserUseCase {
         status:200,
         message:"booking canceled, check your Wallet"
      }
-     
+  }
+
+  async walletRoomBooking(roomId:string,userId:string,formData:any){
+    const room = await this.UserRepo.fetchRoom(roomId);
+    const wallet = await this.UserRepo.fetchWallet(userId);
+
+    if(wallet!.balance < parseInt(room!.securityDeposit )){
+      return{
+        status:400,
+        message:"insufficient wallet amount"
+      }
+    }else{
+       
+      const booked = await this.UserRepo.roomBooking(
+        userId,
+        roomId,
+        parseInt(room!.securityDeposit ),
+        wallet!._id.toString(),
+        room?.name as string,
+        formData.checkInDate,
+        formData.checkOutDate,
+      );
+      if(booked){
+        await this.UserRepo.addBookingMoneyWallet(room!.userId as string, parseInt(room!.securityDeposit ),room!.name)
+        await this .UserRepo.decreaseBookingWallet(userId, parseInt(room!.securityDeposit),room!.name)
+
+        return{
+          status:200,
+          message:"room booking using wallet success"
+        }
+      }else{
+        return{
+          status:400,
+          message:"room booking using wallet failed"
+        }
+      }
+
+    }
+
     
+    
+
+
   }
 
 }

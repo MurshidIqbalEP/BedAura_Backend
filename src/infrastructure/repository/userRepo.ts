@@ -424,6 +424,24 @@ class UserRepo {
     }
   }
 
+  async decreaseBookingWallet(userId:string,amount:number,roomName:string){
+    try {
+      const wallet = await WalletModel.findOne({ userId: userId });
+     if (wallet) {
+       wallet.balance -= amount; 
+       wallet.transactions.push({
+         amount: amount,
+         description: `Paid for booking : ${roomName}`,
+         transactionType: "debit",
+         date: new Date(),
+       });
+       await wallet.save();
+     }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async addMoneyWallet(userId:string,refundAmount:number,roomName:string){
     try {
       const wallet = await WalletModel.findOne({ userId: userId });
@@ -440,6 +458,36 @@ class UserRepo {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async addBookingMoneyWallet (userId:string,amount:number,roomName:string){
+     // Fetch or create the room owner's wallet
+     let wallet = await WalletModel.findOne({ userId: userId});
+     if (!wallet) {
+      const newWallet = new WalletModel({
+        userId,
+        balance: 0,
+        transactions: [],
+      });
+      await newWallet.save();
+       
+       if (newWallet) {
+         wallet = newWallet;
+       }
+
+     }
+
+      // Add the booking amount to the owner's wallet
+      wallet!.balance += amount;
+      wallet!.transactions.push({
+        amount,
+        description: `Room booked: ${roomName}`,
+        transactionType: "credit",
+        date: new Date(),
+      });
+
+      // Save the updated wallet
+      await wallet!.save();
   }
 
   async RemoveBooking(bookingId:string){

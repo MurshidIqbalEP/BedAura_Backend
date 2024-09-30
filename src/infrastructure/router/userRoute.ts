@@ -248,4 +248,11 @@ userRoute.get("/checkBookingValid",
   }
 )
 
+userRoute.post("/walletRoomBooking",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.walletRoomBooking(req, res, next);
+  }
+)
+
 
