@@ -218,29 +218,30 @@ class UserRepo {
     }
   }
 
-  async fetchAllRooms(page: number, limit: number, skip: number) {
+  async fetchAllRooms(query: any, page: number, limit: number, skip: number, sort: string) {
     try {
-      let rooms = RoomModel.find({ isListed: true, isEdited: false,isApproved:true })
-        .skip(skip)
-        .limit(limit);
-      return rooms;
-    } catch (error) {
-      console.log(error);
-    }
-  }
+        const rooms = await RoomModel.find(query) // Apply query for filtering
+            .skip(skip)
+            .limit(limit)
+            .sort(sort ? { [sort]: 1 } : {}); // Apply sorting if provided
 
-  async totalRooms() {
-    try {
-      const total = await RoomModel.countDocuments({
-        isListed: true,
-        isEdited: false,
-        isApproved:true 
-      });
-      return total;
+        return rooms;
     } catch (error) {
-      console.log(error);
+        console.error(error);
+        throw error; // Rethrow the error for higher-level handling
     }
+}
+
+
+async totalRooms(query: any) {
+  try {
+      const total = await RoomModel.countDocuments(query); // Count total rooms based on the query
+      return total;
+  } catch (error) {
+      console.error(error);
+      throw error; // Rethrow the error for higher-level handling
   }
+}
 
   async fetchRoom(id: string) {
     try {

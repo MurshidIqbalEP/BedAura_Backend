@@ -354,23 +354,47 @@ class UserUseCase {
     }
   }
 
-  async fetchAllRooms(page: number, limit: number, skip: number) {
-    let rooms = await this.UserRepo.fetchAllRooms(page, limit, skip);
-    let total = await this.UserRepo.totalRooms();
-    const totalRooms = total ?? 0;
-    if (rooms) {
-      return {
-        status: 200,
-        data: {
-          message: "rooms fetched",
-          rooms,
-          total,
-          page,
-          totalPages: Math.ceil(totalRooms / limit),
-        },
-      };
+  async fetchAllRooms(page: number, limit: number, skip: number, search: string, filters: any, sort: string) {
+    const query: any = { 
+        isListed: true,
+        isEdited: false,
+        isApproved: true
+    };
+
+    // Search functionality
+    if (search) {
+        query.name = { $regex: search, $options: 'i' }; 
     }
-  }
+
+    // Filter functionality
+    if (filters.roomType && filters.roomType.length > 0) {
+        query.roomType = { $in: filters.roomType }; 
+    }
+   
+    
+    // Fetch rooms with search, filter, pagination, and sorting
+    try {
+        let rooms = await this.UserRepo.fetchAllRooms(query, page, limit, skip, sort);
+        let total = await this.UserRepo.totalRooms(query); 
+
+        const totalRooms = total ?? 0;
+
+        return {
+            status: 200,
+            data: {
+                message: "Rooms fetched successfully",
+                rooms,
+                total: totalRooms,
+                page,
+                totalPages: Math.ceil(totalRooms / limit),
+            },
+        };
+    } catch (error) {
+        console.error(error);
+        return { status: 500, data: { message: 'Error fetching rooms' } };
+    }
+}
+
 
   async editUser(_id: string, name: string, email: string, phone: string) {
     let editedUser = await this.UserRepo.editUser(_id, name, email, phone);

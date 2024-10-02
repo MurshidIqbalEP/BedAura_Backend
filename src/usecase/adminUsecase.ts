@@ -23,18 +23,18 @@ class AdminUsecase {
     }
   }
 
-  async fetchAllRooms(){
+  async fetchAllRooms() {
     const rooms = await this.AdminRepo.fetchAllRoops();
-    if(rooms){
-      return{
-        status:200,
-        data:rooms
-      }
-    }else{
+    if (rooms) {
       return {
-        status:400,
-        message:" Fail to fetch Rooms"
-      }
+        status: 200,
+        data: rooms,
+      };
+    } else {
+      return {
+        status: 400,
+        message: " Fail to fetch Rooms",
+      };
     }
   }
 
@@ -70,15 +70,15 @@ class AdminUsecase {
     }
   }
 
-  async fetchEditRequests(){
-    const rooms  = await this.AdminRepo.fetchEditRequests();
-    
-    if(rooms){
+  async fetchEditRequests() {
+    const rooms = await this.AdminRepo.fetchEditRequests();
+
+    if (rooms) {
       return {
         status: 200,
         data: rooms,
       };
-    }else{
+    } else {
       return {
         status: 400,
         message: "Failed to update user",
@@ -86,124 +86,172 @@ class AdminUsecase {
     }
   }
 
-  async approveEdit(roomId:string){
-     const approved = await this.AdminRepo.approveEdit(roomId)
-     if(approved){
+  async approveEdit(roomId: string) {
+    const approved = await this.AdminRepo.approveEdit(roomId);
+    if (approved) {
       return {
         status: 200,
-        message:'Room edited'
+        message: "Room edited",
       };
-     }else{
+    } else {
       return {
         status: 400,
-        message:'Failed to edited Room'
+        message: "Failed to edited Room",
       };
-     }
-  }
-
-  async approveRoom(roomId:string){
-    const approved = await this.AdminRepo.approveRoom(roomId)
-    if(approved){
-     return {
-       status: 200,
-       message:'Room Approved'
-     };
-    }else{
-     return {
-       status: 400,
-       message:'Failed to edited Room'
-     };
-    }
- }
-
-  async fetchNewRequests(){
-    const rooms = await this.AdminRepo.fetchNewRoomRequests()
-    if(rooms){
-      return {
-        status:200,
-        data:rooms
-      }
-    }else{
-      return {
-        status:400,
-        message:"failed to fetch new Requests"
-      }
     }
   }
 
-  async unlistRoom(id:string){
-    const room = await this.AdminRepo.unlistRoom(id)
-    if(room){
+  async approveRoom(roomId: string) {
+    const approved = await this.AdminRepo.approveRoom(roomId);
+    if (approved) {
       return {
-        status:200,
-        message:"room unlisted"
-      }
-    }else{
+        status: 200,
+        message: "Room Approved",
+      };
+    } else {
       return {
-        status:400,
-        message:" failed to unlist room "
-      }
+        status: 400,
+        message: "Failed to edited Room",
+      };
     }
   }
 
-  async listRoom(id:string){
-    const room = await this.AdminRepo.listRoom(id)
-    if(room){
+  async fetchNewRequests() {
+    const rooms = await this.AdminRepo.fetchNewRoomRequests();
+    if (rooms) {
       return {
-        status:200,
-        message:"room listed"
-      }
-    }else{
+        status: 200,
+        data: rooms,
+      };
+    } else {
       return {
-        status:400,
-        message:" failed to list room "
-      }
+        status: 400,
+        message: "failed to fetch new Requests",
+      };
     }
   }
 
-  async fetchOptions(){
+  async unlistRoom(id: string) {
+    const room = await this.AdminRepo.unlistRoom(id);
+    if (room) {
+      return {
+        status: 200,
+        message: "room unlisted",
+      };
+    } else {
+      return {
+        status: 400,
+        message: " failed to unlist room ",
+      };
+    }
+  }
+
+  async listRoom(id: string) {
+    const room = await this.AdminRepo.listRoom(id);
+    if (room) {
+      return {
+        status: 200,
+        message: "room listed",
+      };
+    } else {
+      return {
+        status: 400,
+        message: " failed to list room ",
+      };
+    }
+  }
+
+  async fetchOptions() {
     const options = await this.AdminRepo.fetchOptions();
-    if(options){
+    if (options) {
       return {
-        status:200,
-        data:options
-      }
-    }else{
+        status: 200,
+        data: options,
+      };
+    } else {
       return {
-        status:400,
-        message:"failed to fetch options"
-      }
+        status: 400,
+        message: "failed to fetch options",
+      };
     }
   }
 
-  async addOption(category:string,newValue:string){
-    const added = await this.AdminRepo.addOption(category,newValue)
-    if(added){
+  async addOption(category: string, newValue: string) {
+    const added = await this.AdminRepo.addOption(category, newValue);
+    if (added) {
       return {
-        status:200,
-        message:"option added"
-      }
-    }else{
+        status: 200,
+        message: "option added",
+      };
+    } else {
       return {
-        status:400,
-        message:"failed add option"
-      }
+        status: 400,
+        message: "failed add option",
+      };
     }
   }
 
-  async removeOption(category:string,newValue:string){
-    const removed = await this.AdminRepo.removeOption(category,newValue)
-    
-    if(removed){
+  async removeOption(category: string, newValue: string) {
+    const removed = await this.AdminRepo.removeOption(category, newValue);
+
+    if (removed) {
       return {
-        status:200,
-        message:"option removed"
-      }
-    }else{
+        status: 200,
+        message: "option removed",
+      };
+    } else {
       return {
-        status:400,
-        message:"failed remove option"
-      }
+        status: 400,
+        message: "failed remove option",
+      };
+    }
+  }
+
+  async fetchBookingPerMounth() {
+    const data = await this.AdminRepo.fetchBookingPerMounth();
+
+    if (data) {
+      return {
+        status: 200,
+        data,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed remove option",
+      };
+    }
+  }
+
+  async fetchPieChartData(){
+    const data = await this.AdminRepo.fetchPieChartData();
+
+    if (data) {
+      return {
+        status: 200,
+        data,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed remove option",
+      };
+    }
+  }
+
+  async fetchBookingDataByCity(){
+    const data = await this.AdminRepo.fetchBookingDataByCity();
+
+    if (data) {
+      return {
+        status: 200,
+        data,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed remove option",
+      };
     }
   }
 }

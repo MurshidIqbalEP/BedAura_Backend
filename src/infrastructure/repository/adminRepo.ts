@@ -1,6 +1,7 @@
 import RoomModel from "../database/roomModel";
 import UserModel from "../database/userModel";
 import optionsModel from "../database/optionsModel";
+import BookingModel from "../database/bookingModel";
 
 class AdminRepo {
     constructor() {}
@@ -82,16 +83,83 @@ class AdminRepo {
     }
 
     async removeOption(category:string,newValue:string){
-        console.log(category,newValue);
         
         let removed = await optionsModel.updateOne(
             {  },
             { $pull: { [category]: newValue } }
         );
-        console.log(removed);
         
         return removed;
     }
+
+    async fetchBookingPerMounth(){
+        const data = await BookingModel.aggregate([
+            {
+              $group: {
+                _id: { $month: "$createdAt" }, // Group by the month of the booking's creation date
+                rooms: { $sum: 1 }, // Count the number of bookings (assuming each booking is tied to a room)
+                bookings: { $sum: 1 }, // Count the number of bookings
+              },
+            },
+            {
+              $project: {
+                month: '$_id', // Project the month
+                rooms: 1, // Keep rooms
+                bookings: 1, // Keep bookings
+                _id: 0, // Exclude the _id field from the result
+              },
+            },
+            { $sort: { month: 1 } }, // Sort by month in ascending order
+          ]);
+
+          return data
+    }
+
+    async fetchPieChartData(){
+        const roomTypeData = await RoomModel.aggregate([
+            {
+              $group: {
+                _id: "$roomType",
+                count: { $sum: 1 },
+              },
+            },
+          ]);
+        
+          return roomTypeData
+    }
+
+    async fetchBookingDataByCity(){
+        const bookingsByCity = await BookingModel.aggregate([
+            {
+              $group: {
+                _id: '$roomId', // Assuming roomId contains city info
+                totalBookings: { $sum: 1 },
+                roomName: { $first: '$roomName' },
+              },
+            },
+            {
+              $lookup: {
+                from: 'rooms', // Assuming 'rooms' is the collection name for your room model
+                localField: '_id',
+                foreignField: '_id',
+                as: 'roomDetails',
+              },
+            },
+            {
+              $unwind: '$roomDetails',
+            },
+            {
+              $project: {
+                city: '$roomDetails.location', // Adjust based on how you're storing the city
+                totalBookings: 1,
+              },
+            },
+          ]);
+        
+          return bookingsByCity
+    }
+
+
 
 }
 

@@ -348,9 +348,14 @@ class UserController {
         10
       );
 
+      const search = req.query.search || '';
+      const filters = req.query.filters ? JSON.parse(req.query.filters as string) : {};
+      const sort = req.query.sort || '';
+
+      
       const skip = (page - 1) * limit;
 
-      let response = await this.UserUseCase.fetchAllRooms(page, limit, skip);
+      let response = await this.UserUseCase.fetchAllRooms(page, limit, skip, search as string, filters, sort as string);
       return res.status(response?.status ?? 500).json(response?.data);
     } catch (error) {
       next(error);

@@ -111,54 +111,78 @@ class AdminController {
   async unlistRoom(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.body;
-      const response = await this.adminUsecase.unlistRoom(id)
+      const response = await this.adminUsecase.unlistRoom(id);
       return res.status(response.status).json(response.message);
     } catch (error) {
       next(error);
     }
   }
 
-  async listRoom(req:Request,res:Response,next:NextFunction){
+  async listRoom(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.body;
-      const response = await this.adminUsecase.listRoom(id)
+      const response = await this.adminUsecase.listRoom(id);
       return res.status(response.status).json(response.message);
     } catch (error) {
       next(error);
     }
   }
 
-  async fetchOptions(req:Request,res:Response,next:NextFunction){
+  async fetchOptions(req: Request, res: Response, next: NextFunction) {
     try {
-      const response = await this.adminUsecase.fetchOptions()
-      return res.status(response.status).json(response.data)
+      const response = await this.adminUsecase.fetchOptions();
+      return res.status(response.status).json(response.data);
     } catch (error) {
       next(error);
     }
   }
 
-  async addOption(req:Request,res:Response,next:NextFunction){
+  async addOption(req: Request, res: Response, next: NextFunction) {
     try {
-      const {category,newValue} = req.body;
-      const response = await this.adminUsecase.addOption(category,newValue)
-      return res.status(response.status).json(response.message)
+      const { category, newValue } = req.body;
+      const response = await this.adminUsecase.addOption(category, newValue);
+      return res.status(response.status).json(response.message);
     } catch (error) {
       next(error);
     }
   }
 
-  async removeOption(req:Request,res:Response,next:NextFunction){
+  async removeOption(req: Request, res: Response, next: NextFunction) {
     try {
-      const {category,newValue} = req.body;
-            
-      const response = await this.adminUsecase.removeOption(category,newValue)
-      return res.status(response.status).json(response.message)
+      const { category, newValue } = req.body;
+
+      const response = await this.adminUsecase.removeOption(category, newValue);
+      return res.status(response.status).json(response.message);
     } catch (error) {
       next(error);
     }
   }
-  
 
+  async fetchBookingPerMounth(req: Request, res: Response, next: NextFunction) {
+    try {
+      const response = await this.adminUsecase.fetchBookingPerMounth();
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchPieChartData(req: Request, res: Response, next: NextFunction) {
+    try {
+      const response = await this.adminUsecase.fetchPieChartData();
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+  async fetchBookingDataByCity(req: Request, res: Response, next: NextFunction) {
+    try {
+      const response = await this.adminUsecase.fetchBookingDataByCity();
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default AdminController;

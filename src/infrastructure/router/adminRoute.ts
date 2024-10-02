@@ -101,4 +101,29 @@ adminRoute.patch(
       adminController.removeOption(req,res,next)
     }
   )
+
+  adminRoute.get(
+    "/fetchBookingPerMounth",
+    (req:Request,res:Response,next:NextFunction)=>{
+      
+      adminController.fetchBookingPerMounth(req,res,next)
+    }
+  )
+
+  adminRoute.get(
+    "/fetchPieChartData",
+    (req:Request,res:Response,next:NextFunction)=>{
+      
+      adminController.fetchPieChartData(req,res,next)
+    }
+  )
+
+  adminRoute.get(
+    "/fetchBookingDataByCity",
+    (req:Request,res:Response,next:NextFunction)=>{
+      
+      adminController.fetchBookingDataByCity(req,res,next)
+    }
+  )
+ 
   
