@@ -577,6 +577,28 @@ class UserController {
      next(error);
    }
   }
+
+  async fetchUserPieChartData(req: Request, res: Response, next: NextFunction){
+    try {
+      const {userId} = req.query;
+     let response = await this.UserUseCase.fetchUserPieChartData(userId as string)
+     return res.status(response.status).json(response)
+      
+   } catch (error) {
+     next(error);
+   }
+  }
+
+  async fetchUsersRoomBookings(req: Request, res: Response, next: NextFunction){
+    try {
+      const {userId} = req.query;
+     let response = await this.UserUseCase.fetchUsersRoomBookings(userId as string)
+     return res.status(response.status).json(response)
+      
+   } catch (error) {
+     next(error);
+   }
+  }
 }
 
 export default UserController;

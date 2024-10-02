@@ -354,47 +354,58 @@ class UserUseCase {
     }
   }
 
-  async fetchAllRooms(page: number, limit: number, skip: number, search: string, filters: any, sort: string) {
-    const query: any = { 
-        isListed: true,
-        isEdited: false,
-        isApproved: true
+  async fetchAllRooms(
+    page: number,
+    limit: number,
+    skip: number,
+    search: string,
+    filters: any,
+    sort: string
+  ) {
+    const query: any = {
+      isListed: true,
+      isEdited: false,
+      isApproved: true,
     };
 
     // Search functionality
     if (search) {
-        query.name = { $regex: search, $options: 'i' }; 
+      query.name = { $regex: search, $options: "i" };
     }
 
     // Filter functionality
     if (filters.roomType && filters.roomType.length > 0) {
-        query.roomType = { $in: filters.roomType }; 
+      query.roomType = { $in: filters.roomType };
     }
-   
-    
+
     // Fetch rooms with search, filter, pagination, and sorting
     try {
-        let rooms = await this.UserRepo.fetchAllRooms(query, page, limit, skip, sort);
-        let total = await this.UserRepo.totalRooms(query); 
+      let rooms = await this.UserRepo.fetchAllRooms(
+        query,
+        page,
+        limit,
+        skip,
+        sort
+      );
+      let total = await this.UserRepo.totalRooms(query);
 
-        const totalRooms = total ?? 0;
+      const totalRooms = total ?? 0;
 
-        return {
-            status: 200,
-            data: {
-                message: "Rooms fetched successfully",
-                rooms,
-                total: totalRooms,
-                page,
-                totalPages: Math.ceil(totalRooms / limit),
-            },
-        };
+      return {
+        status: 200,
+        data: {
+          message: "Rooms fetched successfully",
+          rooms,
+          total: totalRooms,
+          page,
+          totalPages: Math.ceil(totalRooms / limit),
+        },
+      };
     } catch (error) {
-        console.error(error);
-        return { status: 500, data: { message: 'Error fetching rooms' } };
+      console.error(error);
+      return { status: 500, data: { message: "Error fetching rooms" } };
     }
-}
-
+  }
 
   async editUser(_id: string, name: string, email: string, phone: string) {
     let editedUser = await this.UserRepo.editUser(_id, name, email, phone);
@@ -449,9 +460,7 @@ class UserUseCase {
     token: any,
     roomId: string,
     userId: string,
-    formData: {numberOfSlots: number,
-      checkInDate: Date,
-      checkOutDate:Date }
+    formData: { numberOfSlots: number; checkInDate: Date; checkOutDate: Date }
   ): Promise<{ status: number; message: string }> {
     try {
       // Fetch room details
@@ -483,10 +492,8 @@ class UserUseCase {
         }
       );
 
-      
-      let amount = total ;
+      let amount = total;
       if (payment) {
-       
         const booked = await this.UserRepo.roomBooking(
           userId,
           roomId,
@@ -494,10 +501,14 @@ class UserUseCase {
           payment.id,
           room?.name as string,
           formData.checkInDate,
-          formData.checkOutDate,
+          formData.checkOutDate
         );
-        
-        await this.UserRepo.addBookingMoneyWallet(room.userId as string,amount,room.name)
+
+        await this.UserRepo.addBookingMoneyWallet(
+          room.userId as string,
+          amount,
+          room.name
+        );
 
         if (booked) {
           return {
@@ -591,7 +602,7 @@ class UserUseCase {
 
   async fetchWallet(userId: string) {
     const wallet = await this.UserRepo.fetchWallet(userId);
-    
+
     if (wallet) {
       return {
         status: 200,
@@ -600,7 +611,7 @@ class UserUseCase {
     } else {
       const newWallet = await this.UserRepo.createWallet(userId);
       console.log(newWallet);
-      
+
       return {
         status: 200,
         data: newWallet,
@@ -608,134 +619,156 @@ class UserUseCase {
     }
   }
 
-  async fetchReviews(roomId:string){
+  async fetchReviews(roomId: string) {
     const reviews = await this.UserRepo.fetchReviews(roomId);
-    if(reviews){
+    if (reviews) {
       return {
-        status:200,
-        reviews
-      }
-    }else{
-      return{
-        status:400,
-        message:"failed to fetch reviews"
-      }
+        status: 200,
+        reviews,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to fetch reviews",
+      };
     }
   }
 
-  async postReview(roomId:string,userId:string,rating:number,review:string){
-      const posted = await this.UserRepo.postReview(roomId,userId,rating,review)
-      if(posted){
-        return{
-          status:200,
-          message:"review posted"
-        }
-      }else{
-        return{
-          status:400,
-          message:"failed to post review"
-        }
-      }
-  }
-
-  async addMessage(sender:string,reciever:string,message:string){
-    const added = await this.UserRepo.addMessage(sender,reciever,message)
-    const setConversation = await this.UserRepo.setConversation(sender,reciever,message)
-    if(added&&setConversation){
-      return{
-        status:200,
-        message:"msg added"
-      }
-    }else{
-      return{
-        status:400,
-        message:"failed to add message"
-      }
+  async postReview(
+    roomId: string,
+    userId: string,
+    rating: number,
+    review: string
+  ) {
+    const posted = await this.UserRepo.postReview(
+      roomId,
+      userId,
+      rating,
+      review
+    );
+    if (posted) {
+      return {
+        status: 200,
+        message: "review posted",
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to post review",
+      };
     }
   }
 
-  async fetchMessages(sender:string,reciever:string){
-    const messages = await this.UserRepo.fetchMessages(sender,reciever)
-    if(messages){
-      return{
-        status:200,
-        data:messages
-      }
-    }else{
-      return{
-        status:400,
-        message:"failed to fetch message"
-      }
+  async addMessage(sender: string, reciever: string, message: string) {
+    const added = await this.UserRepo.addMessage(sender, reciever, message);
+    const setConversation = await this.UserRepo.setConversation(
+      sender,
+      reciever,
+      message
+    );
+    if (added && setConversation) {
+      return {
+        status: 200,
+        message: "msg added",
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to add message",
+      };
     }
   }
 
-  async fetchContacts(currentUserId:string){
-    
-    const messages = await this.UserRepo.fetchContacts(currentUserId)
-   console.log(messages);
-    
-    if(messages){
-      return{
-        status:200,
-        data:messages
-      }
-    }else{
-      return{
-        status:400,
-        message:"failed to fetch message"
-      }
+  async fetchMessages(sender: string, reciever: string) {
+    const messages = await this.UserRepo.fetchMessages(sender, reciever);
+    if (messages) {
+      return {
+        status: 200,
+        data: messages,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to fetch message",
+      };
     }
   }
 
-  async fetchOwnerDetails(ownerUserId:string){
-      const owner = await this.UserRepo.fetchOwnerDetails(ownerUserId)
-      if(owner){
-        return{
-          status:200,
-          owner
-        }
-      }else{
-        return{
-          status:400,
-          message:"failed to fetch owner"
-        }
-      }
+  async fetchContacts(currentUserId: string) {
+    const messages = await this.UserRepo.fetchContacts(currentUserId);
+    console.log(messages);
+
+    if (messages) {
+      return {
+        status: 200,
+        data: messages,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to fetch message",
+      };
+    }
   }
 
-  async checkBookingDateValid (roomId:string,checkIn:Date,checkOut:Date){
-     const validBookingDate = await this.UserRepo.checkBookingDateValid(roomId,checkIn,checkOut)
-     if(validBookingDate=== false){
-      return{
-        status:200,
-        result:true,
-        message:"Valid booking Date"
-      }
-     }else{
-      return{
-      status:200,
-      result:false,
-      message:"InValid booking Date"
-      }
-     }
+  async fetchOwnerDetails(ownerUserId: string) {
+    const owner = await this.UserRepo.fetchOwnerDetails(ownerUserId);
+    if (owner) {
+      return {
+        status: 200,
+        owner,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to fetch owner",
+      };
+    }
   }
 
-  async cancelBooking(room:any){
-    const booking = await this.UserRepo.fetchBooking(room._id)
+  async checkBookingDateValid(roomId: string, checkIn: Date, checkOut: Date) {
+    const validBookingDate = await this.UserRepo.checkBookingDateValid(
+      roomId,
+      checkIn,
+      checkOut
+    );
+    if (validBookingDate === false) {
+      return {
+        status: 200,
+        result: true,
+        message: "Valid booking Date",
+      };
+    } else {
+      return {
+        status: 200,
+        result: false,
+        message: "InValid booking Date",
+      };
+    }
+  }
 
-    if(!booking){
+  async cancelBooking(room: any) {
+    const booking = await this.UserRepo.fetchBooking(room._id);
+
+    if (!booking) {
       return {
         status: 400,
         message: `Cannot cancel the booking. booking is not existing`,
       };
     }
-    
-    const noticePeriodDays = parseInt(room.roomId.noticePeriod.split(" ")[0], 10);
+
+    const noticePeriodDays = parseInt(
+      room.roomId.noticePeriod.split(" ")[0],
+      10
+    );
     const bookingDate = new Date(room.createdAt);
     const currentDate = new Date();
 
     // Calculate the last cancellation date (bookingDate + noticePeriod)
     const lastCancellationDate = new Date(bookingDate);
-    lastCancellationDate.setDate(lastCancellationDate.getDate() + noticePeriodDays);
+    lastCancellationDate.setDate(
+      lastCancellationDate.getDate() + noticePeriodDays
+    );
     if (currentDate > lastCancellationDate) {
       return {
         status: 400,
@@ -751,61 +784,99 @@ class UserUseCase {
 
     const refundAmount = room.amount;
 
-     //Update the wallet of the room owner and user
-     await this.UserRepo.decreaseWallet(room.roomId.userId,refundAmount,booking.roomName);
-     await this.UserRepo.addMoneyWallet(room.userId,refundAmount,booking.roomName);
+    //Update the wallet of the room owner and user
+    await this.UserRepo.decreaseWallet(
+      room.roomId.userId,
+      refundAmount,
+      booking.roomName
+    );
+    await this.UserRepo.addMoneyWallet(
+      room.userId,
+      refundAmount,
+      booking.roomName
+    );
 
-     await this.UserRepo.RemoveBooking(booking._id as string)
+    await this.UserRepo.RemoveBooking(booking._id as string);
 
-     return{
-        status:200,
-        message:"booking canceled, check your Wallet"
-     }
+    return {
+      status: 200,
+      message: "booking canceled, check your Wallet",
+    };
   }
 
-  async walletRoomBooking(roomId:string,userId:string,formData:any){
+  async walletRoomBooking(roomId: string, userId: string, formData: any) {
     const room = await this.UserRepo.fetchRoom(roomId);
     const wallet = await this.UserRepo.fetchWallet(userId);
 
-    if(wallet!.balance < parseInt(room!.securityDeposit )){
-      return{
-        status:400,
-        message:"insufficient wallet amount"
-      }
-    }else{
-       
+    if (wallet!.balance < parseInt(room!.securityDeposit)) {
+      return {
+        status: 400,
+        message: "insufficient wallet amount",
+      };
+    } else {
       const booked = await this.UserRepo.roomBooking(
         userId,
         roomId,
-        parseInt(room!.securityDeposit ),
+        parseInt(room!.securityDeposit),
         wallet!._id.toString(),
         room?.name as string,
         formData.checkInDate,
-        formData.checkOutDate,
+        formData.checkOutDate
       );
-      if(booked){
-        await this.UserRepo.addBookingMoneyWallet(room!.userId as string, parseInt(room!.securityDeposit ),room!.name)
-        await this .UserRepo.decreaseBookingWallet(userId, parseInt(room!.securityDeposit),room!.name)
+      if (booked) {
+        await this.UserRepo.addBookingMoneyWallet(
+          room!.userId as string,
+          parseInt(room!.securityDeposit),
+          room!.name
+        );
+        await this.UserRepo.decreaseBookingWallet(
+          userId,
+          parseInt(room!.securityDeposit),
+          room!.name
+        );
 
-        return{
-          status:200,
-          message:"room booking using wallet success"
-        }
-      }else{
-        return{
-          status:400,
-          message:"room booking using wallet failed"
-        }
+        return {
+          status: 200,
+          message: "room booking using wallet success",
+        };
+      } else {
+        return {
+          status: 400,
+          message: "room booking using wallet failed",
+        };
       }
-
     }
-
-    
-    
-
-
   }
 
+  async fetchUserPieChartData(userId:string){
+      let data = await this.UserRepo.fetchUserPieChartData(userId)
+      if(data){
+        return {
+          status:200,
+          data:data
+        }
+      }else{
+        return {
+          status:400,
+          message:"failed to fetch data"
+        }
+      }
+  }
+
+  async fetchUsersRoomBookings(userId:string){
+    let data = await this.UserRepo.fetchUsersRoomBookings(userId)
+    if(data){
+      return {
+        status:200,
+        data:data
+      }
+    }else{
+      return {
+        status:400,
+        message:"failed to fetch data"
+      }
+    }
+}
 }
 
 export default UserUseCase;

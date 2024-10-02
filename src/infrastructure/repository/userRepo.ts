@@ -8,6 +8,7 @@ import WalletModel from "../database/walletModel";
 import ReviewModel from "../database/reviewModel";
 import MessageModel from "../database/messageModel";
 import ConversationModel from "../database/conversationModal";
+import mongoose from 'mongoose';
 
 class UserRepo {
   constructor() {}
@@ -148,7 +149,6 @@ class UserRepo {
   }
 
   async addRoom(roomData: IRoom) {
-    
     try {
       const Room = new RoomModel({
         name: roomData.name,
@@ -162,7 +162,7 @@ class UserRepo {
         noticePeriod: roomData.noticePeriod,
         location: roomData.location,
         description: roomData.description,
-        additionalOptions:roomData.additionalOptions,
+        additionalOptions: roomData.additionalOptions,
         coordinates: {
           type: "Point",
           coordinates: [roomData.coordinates.lng, roomData.coordinates.lat],
@@ -192,7 +192,7 @@ class UserRepo {
           noticePeriod: roomData.noticePeriod,
           location: roomData.location,
           description: roomData.description,
-          additionalOptions:roomData.additionalOptions,
+          additionalOptions: roomData.additionalOptions,
           coordinates: {
             type: "Point",
             coordinates: [roomData.coordinates.lng, roomData.coordinates.lat],
@@ -218,30 +218,35 @@ class UserRepo {
     }
   }
 
-  async fetchAllRooms(query: any, page: number, limit: number, skip: number, sort: string) {
+  async fetchAllRooms(
+    query: any,
+    page: number,
+    limit: number,
+    skip: number,
+    sort: string
+  ) {
     try {
-        const rooms = await RoomModel.find(query) // Apply query for filtering
-            .skip(skip)
-            .limit(limit)
-            .sort(sort ? { [sort]: 1 } : {}); // Apply sorting if provided
+      const rooms = await RoomModel.find(query) // Apply query for filtering
+        .skip(skip)
+        .limit(limit)
+        .sort(sort ? { [sort]: 1 } : {}); // Apply sorting if provided
 
-        return rooms;
+      return rooms;
     } catch (error) {
-        console.error(error);
-        throw error; // Rethrow the error for higher-level handling
-    }
-}
-
-
-async totalRooms(query: any) {
-  try {
-      const total = await RoomModel.countDocuments(query); // Count total rooms based on the query
-      return total;
-  } catch (error) {
       console.error(error);
       throw error; // Rethrow the error for higher-level handling
+    }
   }
-}
+
+  async totalRooms(query: any) {
+    try {
+      const total = await RoomModel.countDocuments(query); // Count total rooms based on the query
+      return total;
+    } catch (error) {
+      console.error(error);
+      throw error; // Rethrow the error for higher-level handling
+    }
+  }
 
   async fetchRoom(id: string) {
     try {
@@ -336,8 +341,8 @@ async totalRooms(query: any) {
     amount: number,
     paymentId: string,
     roomName: string,
-    checkInDate:Date,
-    checkOutDate:Date
+    checkInDate: Date,
+    checkOutDate: Date
   ) {
     try {
       const newBooking = new BookingModel({
@@ -345,8 +350,8 @@ async totalRooms(query: any) {
         roomName: roomName,
         roomId: roomId,
         amount,
-        checkIn:checkInDate,
-        checkOut:checkOutDate,
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
         paymentId: paymentId,
       });
       const booked = await newBooking.save();
@@ -373,7 +378,7 @@ async totalRooms(query: any) {
     try {
       const booking = await BookingModel.findById(bookingId)
         .populate("roomId")
-        .exec()
+        .exec();
 
       return booking;
     } catch (error) {
@@ -383,9 +388,14 @@ async totalRooms(query: any) {
 
   async fetchWallet(userId: string) {
     try {
-      const wallet = await walletModel.findOne({ userId: userId }).lean().exec();
+      const wallet = await walletModel
+        .findOne({ userId: userId })
+        .lean()
+        .exec();
       if (wallet && wallet.transactions) {
-        wallet.transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        wallet.transactions.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
       }
       return wallet;
     } catch (error) {
@@ -407,118 +417,131 @@ async totalRooms(query: any) {
     }
   }
 
-  async decreaseWallet(userId:string,refundAmount:number,roomName:string){
+  async decreaseWallet(userId: string, refundAmount: number, roomName: string) {
     try {
       const wallet = await WalletModel.findOne({ userId: userId });
-     if (wallet) {
-       wallet.balance -= refundAmount; // Deduct the refunded amount
-       wallet.transactions.push({
-         amount: refundAmount,
-         description: `Refund for booking cancellation: ${roomName}`,
-         transactionType: "debit",
-         date: new Date(),
-       });
-       await wallet.save();
-     }
+      if (wallet) {
+        wallet.balance -= refundAmount; // Deduct the refunded amount
+        wallet.transactions.push({
+          amount: refundAmount,
+          description: `Refund for booking cancellation: ${roomName}`,
+          transactionType: "debit",
+          date: new Date(),
+        });
+        await wallet.save();
+      }
     } catch (error) {
       console.log(error);
     }
   }
 
-  async decreaseBookingWallet(userId:string,amount:number,roomName:string){
+  async decreaseBookingWallet(
+    userId: string,
+    amount: number,
+    roomName: string
+  ) {
     try {
       const wallet = await WalletModel.findOne({ userId: userId });
-     if (wallet) {
-       wallet.balance -= amount; 
-       wallet.transactions.push({
-         amount: amount,
-         description: `Paid for booking : ${roomName}`,
-         transactionType: "debit",
-         date: new Date(),
-       });
-       await wallet.save();
-     }
+      if (wallet) {
+        wallet.balance -= amount;
+        wallet.transactions.push({
+          amount: amount,
+          description: `Paid for booking : ${roomName}`,
+          transactionType: "debit",
+          date: new Date(),
+        });
+        await wallet.save();
+      }
     } catch (error) {
       console.log(error);
     }
   }
 
-  async addMoneyWallet(userId:string,refundAmount:number,roomName:string){
+  async addMoneyWallet(userId: string, refundAmount: number, roomName: string) {
     try {
       const wallet = await WalletModel.findOne({ userId: userId });
-     if (wallet) {
-       wallet.balance += refundAmount; // add the refunded amount
-       wallet.transactions.push({
-         amount: refundAmount,
-         description: `Refund for booking cancellation: ${roomName}`,
-         transactionType: "credit",
-         date: new Date(),
-       });
-       await wallet.save();
-     }
+      if (wallet) {
+        wallet.balance += refundAmount; // add the refunded amount
+        wallet.transactions.push({
+          amount: refundAmount,
+          description: `Refund for booking cancellation: ${roomName}`,
+          transactionType: "credit",
+          date: new Date(),
+        });
+        await wallet.save();
+      }
     } catch (error) {
       console.log(error);
     }
   }
 
-  async addBookingMoneyWallet (userId:string,amount:number,roomName:string){
-     // Fetch or create the room owner's wallet
-     let wallet = await WalletModel.findOne({ userId: userId});
-     if (!wallet) {
+  async addBookingMoneyWallet(
+    userId: string,
+    amount: number,
+    roomName: string
+  ) {
+    // Fetch or create the room owner's wallet
+    let wallet = await WalletModel.findOne({ userId: userId });
+    if (!wallet) {
       const newWallet = new WalletModel({
         userId,
         balance: 0,
         transactions: [],
       });
       await newWallet.save();
-       
-       if (newWallet) {
-         wallet = newWallet;
-       }
 
-     }
+      if (newWallet) {
+        wallet = newWallet;
+      }
+    }
 
-      // Add the booking amount to the owner's wallet
-      wallet!.balance += amount;
-      wallet!.transactions.push({
-        amount,
-        description: `Room booked: ${roomName}`,
-        transactionType: "credit",
-        date: new Date(),
-      });
+    // Add the booking amount to the owner's wallet
+    wallet!.balance += amount;
+    wallet!.transactions.push({
+      amount,
+      description: `Room booked: ${roomName}`,
+      transactionType: "credit",
+      date: new Date(),
+    });
 
-      // Save the updated wallet
-      await wallet!.save();
+    // Save the updated wallet
+    await wallet!.save();
   }
 
-  async RemoveBooking(bookingId:string){
+  async RemoveBooking(bookingId: string) {
     try {
       const deleted = await BookingModel.findByIdAndDelete(bookingId);
-      return deleted ?true : false;
+      return deleted ? true : false;
     } catch (error) {
       console.log(error);
     }
   }
 
-  async postReview(roomId:string,userId:string,rating:number,review:string){
+  async postReview(
+    roomId: string,
+    userId: string,
+    rating: number,
+    review: string
+  ) {
     try {
       const newReview = new ReviewModel({
         userId,
         roomId,
         rating,
-        review
-      })
-      await newReview.save()
-      return newReview
+        review,
+      });
+      await newReview.save();
+      return newReview;
     } catch (error) {
       console.log(error);
     }
   }
 
-  async fetchReviews(roomId:string){
+  async fetchReviews(roomId: string) {
     try {
-      const reviews = await ReviewModel.find({ roomId: roomId }).populate("userId")
-      .exec();
+      const reviews = await ReviewModel.find({ roomId: roomId })
+        .populate("userId")
+        .exec();
 
       return reviews;
     } catch (error) {
@@ -526,16 +549,15 @@ async totalRooms(query: any) {
     }
   }
 
-  async addMessage(sender:string,reciever:string,message:string){
+  async addMessage(sender: string, reciever: string, message: string) {
     try {
-      
-       const newMessage = new MessageModel({
-        senderId:sender,
-        users:[sender,reciever],
-        message:message
-       })
-       await newMessage.save()
-       return newMessage;
+      const newMessage = new MessageModel({
+        senderId: sender,
+        users: [sender, reciever],
+        message: message,
+      });
+      await newMessage.save();
+      return newMessage;
     } catch (error) {
       console.log(error);
     }
@@ -545,9 +567,9 @@ async totalRooms(query: any) {
     try {
       const exist = await ConversationModel.findOne({
         $or: [
-          { senderId: sender, receiverId: receiver }, 
-          { senderId: receiver, receiverId: sender }
-        ]
+          { senderId: sender, receiverId: receiver },
+          { senderId: receiver, receiverId: sender },
+        ],
       });
       if (exist) {
         exist.message = message;
@@ -556,54 +578,53 @@ async totalRooms(query: any) {
         const newConversation = new ConversationModel({
           senderId: sender,
           receiverId: receiver,
-          message: message
+          message: message,
         });
         await newConversation.save();
       }
-      return true
+      return true;
     } catch (error) {
-      console.error('Error in setConversation:', error);
+      console.error("Error in setConversation:", error);
     }
   }
-  
 
-  async fetchMessages(sender:string,reciever:string){
+  async fetchMessages(sender: string, reciever: string) {
     try {
       const msgs = await MessageModel.find({
-        users:{
-          $all:[sender,reciever]
-        }
-      }).sort({updatedAt:1})
+        users: {
+          $all: [sender, reciever],
+        },
+      }).sort({ updatedAt: 1 });
 
-      const projectedMessages = msgs.map((msg)=>{
+      const projectedMessages = msgs.map((msg) => {
         return {
           fromSelf: msg.senderId.toString() === sender,
           message: msg.message,
-          timestamp: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-        }
+          timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
       });
 
-      return projectedMessages
+      return projectedMessages;
     } catch (error) {
       console.log(error);
-      
     }
   }
 
-  async fetchContacts (currentUserId:string){
+  async fetchContacts(currentUserId: string) {
     try {
-      
       const conversations = await ConversationModel.find({
-        $or: [{ senderId: currentUserId }, { receiverId: currentUserId }]
-      }).populate('senderId receiverId');
+        $or: [{ senderId: currentUserId }, { receiverId: currentUserId }],
+      }).populate("senderId receiverId");
 
       console.log(conversations);
-      
-      
+
       if (!conversations || conversations.length === 0) {
-        return []; 
+        return [];
       }
-      
+
       const otherPersonsData = conversations.map((conversation) => {
         // Check if currentUserId is the sender, if so, return the receiver's data
         if (conversation.senderId._id.toString() === currentUserId) {
@@ -612,7 +633,7 @@ async totalRooms(query: any) {
             name: conversation.receiverId.name,
             image: conversation.receiverId.image,
             message: conversation.message,
-            updatedAt: conversation.updatedAt, 
+            updatedAt: conversation.updatedAt,
           };
         } else {
           // If currentUserId is the receiver, return the sender's data
@@ -620,41 +641,97 @@ async totalRooms(query: any) {
             id: conversation.senderId._id,
             name: conversation.senderId.name,
             image: conversation.senderId.image,
-            message: conversation.message, 
-            updatedAt: conversation.updatedAt, 
+            message: conversation.message,
+            updatedAt: conversation.updatedAt,
           };
         }
       });
-       
-      
-       return otherPersonsData;
-      
+
+      return otherPersonsData;
     } catch (error) {
       console.log(error);
     }
   }
 
-  async fetchOwnerDetails (ownerUserId:string){
-    const owner = await UserModel.findById(ownerUserId,{name:1,image:1})
-    return owner
+  async fetchOwnerDetails(ownerUserId: string) {
+    const owner = await UserModel.findById(ownerUserId, { name: 1, image: 1 });
+    return owner;
   }
 
-  async checkBookingDateValid(roomId:string,checkInISO:Date,checkOutISO:Date){
-     const bookings = await BookingModel.find({
+  async checkBookingDateValid(
+    roomId: string,
+    checkInISO: Date,
+    checkOutISO: Date
+  ) {
+    const bookings = await BookingModel.find({
       roomId: roomId,
       $or: [
         { checkIn: { $lt: checkOutISO, $gte: checkInISO } }, // Condition 1
         { checkOut: { $gt: checkInISO, $lte: checkOutISO } }, // Condition 2
-        { $and: [ // Condition 3
+        {
+          $and: [
+            // Condition 3
             { checkIn: { $lte: checkInISO } },
-            { checkOut: { $gte: checkOutISO } }
-          ]
-        }
-      ]
-     })
+            { checkOut: { $gte: checkOutISO } },
+          ],
+        },
+      ],
+    });
 
-     return bookings.length > 0;
-     
+    return bookings.length > 0;
+  }
+
+  async fetchUserPieChartData(userId:string){
+    const roomData = await RoomModel.aggregate([
+      {
+        $match: { userId: userId }, // Match rooms owned by the user
+      },
+      {
+        $group: {
+          _id: "$roomType", // Group by room type
+          totalRooms: { $sum: 1 }, // Count total number of rooms for each type
+        },
+      },
+      {
+        $project: {
+          _id: 0, // Hide the default _id field
+          roomType: "$_id", // Alias the grouped _id to roomType
+          totalRooms: 1, // Return total number of rooms for each type
+        },
+      },
+    ]);
+    return roomData
+  }
+
+  async fetchUsersRoomBookings(userId:string){
+    const roomsWithBookings = await RoomModel.aggregate([
+      {
+        $match: { userId: userId }, // Match rooms owned by the user
+      },
+      {
+        $lookup: {
+          from: 'bookings', // Join with bookings collection
+          localField: '_id', // Room ID in Room model
+          foreignField: 'roomId', // Room ID in Booking model
+          as: 'bookings', // Store the matched bookings in an array
+        },
+      },
+      {
+        $addFields: {
+          totalBookings: { $size: '$bookings' }, // Count total bookings per room
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          roomName: '$name', // Room name
+          totalBookings: 1, // Total bookings
+        },
+      },
+    ]);
+    console.log(roomsWithBookings);
+    
+    return roomsWithBookings
   }
 }
 

@@ -255,6 +255,20 @@ userRoute.post("/walletRoomBooking",
   }
 )
 
+userRoute.get("/fetchUserPieChartData",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.fetchUserPieChartData(req, res, next);
+  }
+)
+
+userRoute.get("/fetchUsersRoomBookings",
+  userAuth,
+  (req: Request, res: Response, next: NextFunction) => {  
+    userController.fetchUsersRoomBookings(req, res, next);
+  }
+)
+
 
 
 
