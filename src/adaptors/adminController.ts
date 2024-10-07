@@ -183,6 +183,16 @@ class AdminController {
       next(error);
     }
   }
+  async rejectRoom(req: Request, res: Response, next: NextFunction){
+    try {
+      const {roomId,reason} = req.body;
+      
+      const response = await this.adminUsecase.rejectRoom(roomId,reason);
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default AdminController;

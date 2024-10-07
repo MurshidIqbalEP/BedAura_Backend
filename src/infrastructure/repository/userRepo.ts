@@ -278,6 +278,8 @@ class UserRepo {
     skip: number
   ) {
     try {
+      console.log(latitude,longitude,limit,skip);
+      
       let rooms = await RoomModel.aggregate([
         {
           $geoNear: {
@@ -300,7 +302,8 @@ class UserRepo {
           $limit: limit,
         },
       ]);
-
+     
+     
       return rooms;
     } catch (error) {
       console.log(error);

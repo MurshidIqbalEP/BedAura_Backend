@@ -21,6 +21,7 @@
     };
     additionalOptions:string[];
     images: string[];
+    rejectionReason:string
 }
 
 
@@ -39,6 +40,7 @@
     additionalOptions:string[]
     coordinates: { lat: number, lng: number }
     images: string[];
+  
 }
 
 export default Room;

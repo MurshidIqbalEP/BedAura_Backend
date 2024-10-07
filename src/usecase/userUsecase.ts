@@ -436,14 +436,17 @@ class UserUseCase {
       limit,
       skip
     );
+   
+    
     let total = await this.UserRepo.totalNearRooms(latitude, longitude);
     const totalRooms = total ?? 0;
+    console.log(totalRooms);
+    
     if (rooms) {
       return {
         status: 200,
         data: {
           rooms,
-          total,
           page,
           totalPages: Math.ceil(totalRooms / limit),
         },

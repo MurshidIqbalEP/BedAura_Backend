@@ -73,6 +73,9 @@ const uroomSchema: Schema<Room> = new Schema({
     type: [String],
     required: true,
   },
+  rejectionReason:{
+    type:String
+  }
 });
 
 uroomSchema.index({ coordinates: "2dsphere" });

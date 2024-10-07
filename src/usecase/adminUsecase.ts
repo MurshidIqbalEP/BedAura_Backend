@@ -254,6 +254,24 @@ class AdminUsecase {
       };
     }
   }
+
+  async rejectRoom(roomId:string,reason:string){
+    const rejected = await this.AdminRepo.rejectRoom(roomId,reason);
+    
+    
+
+    if (rejected) {
+      return {
+        status: 200,
+        message:"room rejected"
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed reject room",
+      };
+    }
+  }
 }
 
 export default AdminUsecase;

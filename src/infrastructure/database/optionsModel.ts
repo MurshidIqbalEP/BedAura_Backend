@@ -21,6 +21,7 @@ const optionsSchema: Schema<Options> = new Schema({
     AdditionalOptions:{
         type:[String],
     }
+    
 });
 
 const optionsModel: Model<Options> = mongoose.model<Options>("Options", optionsSchema);
