@@ -63,9 +63,8 @@ app.use(morgan("dev"));
 app.use("/api/user", userRoute);
 app.use("/api/admin", adminRoute);
 
-const userSockets: { [key: string]: string } = {}; // Maps userId to socketId
-const onlineUsers: { [key: string]: boolean } = {}; // Track user online status
-
+const userSockets: { [key: string]: string } = {}; 
+const onlineUsers: { [key: string]: boolean } = {}; 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -74,7 +73,7 @@ io.on("connection", (socket) => {
     userSockets[userId] = socket.id; // Store the socket ID associated with the user ID
     onlineUsers[userId] = true; // Mark user as online
     console.log(`User ${userId} registered with socket ID ${socket.id}`);
-   
+
     // Notify all clients that this user is online
     io.emit("userOnlineStatus", { userId, online: true });
   });
@@ -122,7 +121,7 @@ io.on("connection", (socket) => {
   socket.on("checkStatus", ({ chattingWithUserId }) => {
     let status = onlineUsers[chattingWithUserId];
     console.log(onlineUsers);
-    
+
     socket.emit("onlineStatus", { status });
   });
   // Handle user disconnecting
@@ -152,7 +151,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// Utility functions
 function getRoomId(user1: string, user2: string) {
   return [user1, user2].sort().join("_");
 }

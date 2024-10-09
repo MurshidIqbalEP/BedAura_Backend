@@ -2,22 +2,23 @@ import UserModel from "../database/userModel";
 import otpModel from "../database/otpModel";
 import RoomModel from "../database/roomModel";
 import BookingModel from "../database/bookingModel";
-import Room, { IRoom } from "../../domain/room";
+import  { IRoom } from "../../domain/room";
 import walletModel from "../database/walletModel";
 import WalletModel from "../database/walletModel";
 import ReviewModel from "../database/reviewModel";
 import MessageModel from "../database/messageModel";
 import ConversationModel from "../database/conversationModal";
-import mongoose from 'mongoose';
 
 class UserRepo {
   constructor() {}
 
+  // Method to find a user by email
   async findByEmail(email: string) {
     let user = await UserModel.findOne({ email: email });
     return user;
   }
-
+  
+  // Method to save OTP for registration or password recovery
   async saveOtp(
     email: string,
     otp: number,
@@ -45,10 +46,10 @@ class UserRepo {
     });
 
     const userSave = await userDoc.save();
-
     return savedDoc;
   }
 
+  // Method to save OTP for password recovery
   async saveOtpForforgetPass(
     email: string,
     otp: number,
@@ -64,10 +65,10 @@ class UserRepo {
     });
 
     const savedDoc = await otpDoc.save();
-
     return savedDoc;
   }
 
+  // Method to sign up a Google user
   async Gsignup(
     name: string,
     email: string,
@@ -88,14 +89,17 @@ class UserRepo {
     return newGUser;
   }
 
+  // Method to find the latest OTP by email
   async findOtpByEmail(email: string): Promise<any> {
     return otpModel.findOne({ email }).sort({ otpGeneratedAt: -1 });
   }
 
+  // Method to delete OTP by email
   async deleteOtpByEmail(email: string): Promise<any> {
     return otpModel.deleteOne({ email });
   }
-
+ 
+  // Method to verify a user by email
   async verifyUser(email: string): Promise<any> {
     try {
       const updatedUser = await UserModel.findOneAndUpdate(
@@ -115,6 +119,7 @@ class UserRepo {
     }
   }
 
+  // Method to update OTP for a user
   async updateOtp(email: string, otp: number) {
     try {
       const updateOtp = await otpModel.findOneAndUpdate(
@@ -127,6 +132,7 @@ class UserRepo {
     }
   }
 
+  // Method to find a user by email
   async findUser(email: string) {
     try {
       let user = await UserModel.findOne({ email: email });
@@ -136,6 +142,7 @@ class UserRepo {
     }
   }
 
+  // Method to change a user's password
   async changePass(email: string, password: string) {
     try {
       let user = await UserModel.updateOne(
@@ -148,6 +155,7 @@ class UserRepo {
     }
   }
 
+   // Method to add a new room
   async addRoom(roomData: IRoom) {
     try {
       const Room = new RoomModel({
@@ -178,6 +186,7 @@ class UserRepo {
     }
   }
 
+  // Method to edit an existing room
   async editRoom(roomData: any) {
     try {
       const edited = await RoomModel.findByIdAndUpdate(roomData.roomId, {
@@ -209,6 +218,7 @@ class UserRepo {
     }
   }
 
+  // Method to fetch all rooms by user ID
   async fetchAllRoomsById(id: string) {
     try {
       let rooms = RoomModel.find({ userId: id });
@@ -218,6 +228,7 @@ class UserRepo {
     }
   }
 
+  // Method to fetch all rooms with pagination and sorting
   async fetchAllRooms(
     query: any,
     page: number,
@@ -234,7 +245,7 @@ class UserRepo {
       return rooms;
     } catch (error) {
       console.error(error);
-      throw error; // Rethrow the error for higher-level handling
+      throw error; 
     }
   }
 
@@ -248,6 +259,7 @@ class UserRepo {
     }
   }
 
+  //Method to fetch room by Id
   async fetchRoom(id: string) {
     try {
       let rooms = RoomModel.findById(id);
@@ -257,6 +269,7 @@ class UserRepo {
     }
   }
 
+  //Method to edit User
   async editUser(_id: string, name: string, email: string, phone: string) {
     try {
       let edited = await UserModel.findByIdAndUpdate(
@@ -269,7 +282,8 @@ class UserRepo {
       console.log(error);
     }
   }
-
+  
+  //Method to fetch nearest room
   async fetchNearestRooms(
     latitude: number,
     longitude: number,
@@ -278,8 +292,8 @@ class UserRepo {
     skip: number
   ) {
     try {
-      console.log(latitude,longitude,limit,skip);
-      
+      console.log(latitude, longitude, limit, skip);
+
       let rooms = await RoomModel.aggregate([
         {
           $geoNear: {
@@ -302,14 +316,14 @@ class UserRepo {
           $limit: limit,
         },
       ]);
-     
-     
+
       return rooms;
     } catch (error) {
       console.log(error);
     }
   }
 
+  //Method to find total near room 
   async totalNearRooms(latitude: number, longitude: number) {
     try {
       let roomCount = await RoomModel.aggregate([
@@ -338,6 +352,7 @@ class UserRepo {
     }
   }
 
+  //Method to book room
   async roomBooking(
     userId: string,
     roomId: string,
@@ -365,6 +380,7 @@ class UserRepo {
     }
   }
 
+  //Method to fetch booking by user
   async fetchBookings(userId: string) {
     try {
       const bookings = await BookingModel.find({ userId: userId })
@@ -376,7 +392,8 @@ class UserRepo {
       console.log(error);
     }
   }
-
+ 
+  //Method fetch booking by bookingId
   async fetchBooking(bookingId: string) {
     try {
       const booking = await BookingModel.findById(bookingId)
@@ -389,6 +406,7 @@ class UserRepo {
     }
   }
 
+  //Method to fetch wallet
   async fetchWallet(userId: string) {
     try {
       const wallet = await walletModel
@@ -406,6 +424,7 @@ class UserRepo {
     }
   }
 
+  //Method to create wallet
   async createWallet(userId: string) {
     try {
       const newWallet = new WalletModel({
@@ -420,6 +439,7 @@ class UserRepo {
     }
   }
 
+  //Method to decrease wallet amount
   async decreaseWallet(userId: string, refundAmount: number, roomName: string) {
     try {
       const wallet = await WalletModel.findOne({ userId: userId });
@@ -438,6 +458,7 @@ class UserRepo {
     }
   }
 
+  //Method to decrease wallet amount
   async decreaseBookingWallet(
     userId: string,
     amount: number,
@@ -460,6 +481,7 @@ class UserRepo {
     }
   }
 
+  //Method to paid money to user wallet
   async addMoneyWallet(userId: string, refundAmount: number, roomName: string) {
     try {
       const wallet = await WalletModel.findOne({ userId: userId });
@@ -478,6 +500,7 @@ class UserRepo {
     }
   }
 
+  //Method to add booking money to wallet
   async addBookingMoneyWallet(
     userId: string,
     amount: number,
@@ -511,6 +534,7 @@ class UserRepo {
     await wallet!.save();
   }
 
+  //Method to remove booking
   async RemoveBooking(bookingId: string) {
     try {
       const deleted = await BookingModel.findByIdAndDelete(bookingId);
@@ -520,6 +544,7 @@ class UserRepo {
     }
   }
 
+  //Method to post a review
   async postReview(
     roomId: string,
     userId: string,
@@ -540,6 +565,7 @@ class UserRepo {
     }
   }
 
+  //Method to fetch all review by roomId
   async fetchReviews(roomId: string) {
     try {
       const reviews = await ReviewModel.find({ roomId: roomId })
@@ -552,6 +578,7 @@ class UserRepo {
     }
   }
 
+  //Method to add message to db
   async addMessage(sender: string, reciever: string, message: string) {
     try {
       const newMessage = new MessageModel({
@@ -566,6 +593,7 @@ class UserRepo {
     }
   }
 
+  //Method to create a conversation between users
   async setConversation(sender: string, receiver: string, message: string) {
     try {
       const exist = await ConversationModel.findOne({
@@ -591,6 +619,7 @@ class UserRepo {
     }
   }
 
+  //Method to fetch all messages
   async fetchMessages(sender: string, reciever: string) {
     try {
       const msgs = await MessageModel.find({
@@ -616,6 +645,7 @@ class UserRepo {
     }
   }
 
+  //Method to fetch contact
   async fetchContacts(currentUserId: string) {
     try {
       const conversations = await ConversationModel.find({
@@ -656,11 +686,13 @@ class UserRepo {
     }
   }
 
+  //Method to find owner
   async fetchOwnerDetails(ownerUserId: string) {
     const owner = await UserModel.findById(ownerUserId, { name: 1, image: 1 });
     return owner;
   }
 
+  //Method to check booking data valid or not
   async checkBookingDateValid(
     roomId: string,
     checkInISO: Date,
@@ -684,7 +716,8 @@ class UserRepo {
     return bookings.length > 0;
   }
 
-  async fetchUserPieChartData(userId:string){
+  //Method to fetch pie chart data
+  async fetchUserPieChartData(userId: string) {
     const roomData = await RoomModel.aggregate([
       {
         $match: { userId: userId }, // Match rooms owned by the user
@@ -703,38 +736,39 @@ class UserRepo {
         },
       },
     ]);
-    return roomData
+    return roomData;
   }
 
-  async fetchUsersRoomBookings(userId:string){
+  //Method to fetch user room booking
+  async fetchUsersRoomBookings(userId: string) {
     const roomsWithBookings = await RoomModel.aggregate([
       {
         $match: { userId: userId }, // Match rooms owned by the user
       },
       {
         $lookup: {
-          from: 'bookings', // Join with bookings collection
-          localField: '_id', // Room ID in Room model
-          foreignField: 'roomId', // Room ID in Booking model
-          as: 'bookings', // Store the matched bookings in an array
+          from: "bookings", // Join with bookings collection
+          localField: "_id", // Room ID in Room model
+          foreignField: "roomId", // Room ID in Booking model
+          as: "bookings", // Store the matched bookings in an array
         },
       },
       {
         $addFields: {
-          totalBookings: { $size: '$bookings' }, // Count total bookings per room
+          totalBookings: { $size: "$bookings" }, // Count total bookings per room
         },
       },
       {
         $project: {
           _id: 0,
-          roomName: '$name', // Room name
+          roomName: "$name", // Room name
           totalBookings: 1, // Total bookings
         },
       },
     ]);
     console.log(roomsWithBookings);
-    
-    return roomsWithBookings
+
+    return roomsWithBookings;
   }
 }
 

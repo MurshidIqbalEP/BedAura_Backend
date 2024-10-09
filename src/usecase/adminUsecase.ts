@@ -223,7 +223,7 @@ class AdminUsecase {
     }
   }
 
-  async fetchPieChartData(){
+  async fetchPieChartData() {
     const data = await this.AdminRepo.fetchPieChartData();
 
     if (data) {
@@ -239,7 +239,7 @@ class AdminUsecase {
     }
   }
 
-  async fetchBookingDataByCity(){
+  async fetchBookingDataByCity() {
     const data = await this.AdminRepo.fetchBookingDataByCity();
 
     if (data) {
@@ -255,15 +255,13 @@ class AdminUsecase {
     }
   }
 
-  async rejectRoom(roomId:string,reason:string){
-    const rejected = await this.AdminRepo.rejectRoom(roomId,reason);
-    
-    
+  async rejectRoom(roomId: string, reason: string) {
+    const rejected = await this.AdminRepo.rejectRoom(roomId, reason);
 
     if (rejected) {
       return {
         status: 200,
-        message:"room rejected"
+        message: "room rejected",
       };
     } else {
       return {

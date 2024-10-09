@@ -436,12 +436,11 @@ class UserUseCase {
       limit,
       skip
     );
-   
-    
+
     let total = await this.UserRepo.totalNearRooms(latitude, longitude);
     const totalRooms = total ?? 0;
     console.log(totalRooms);
-    
+
     if (rooms) {
       return {
         status: 200,
@@ -851,35 +850,35 @@ class UserUseCase {
     }
   }
 
-  async fetchUserPieChartData(userId:string){
-      let data = await this.UserRepo.fetchUserPieChartData(userId)
-      if(data){
-        return {
-          status:200,
-          data:data
-        }
-      }else{
-        return {
-          status:400,
-          message:"failed to fetch data"
-        }
-      }
+  async fetchUserPieChartData(userId: string) {
+    let data = await this.UserRepo.fetchUserPieChartData(userId);
+    if (data) {
+      return {
+        status: 200,
+        data: data,
+      };
+    } else {
+      return {
+        status: 400,
+        message: "failed to fetch data",
+      };
+    }
   }
 
-  async fetchUsersRoomBookings(userId:string){
-    let data = await this.UserRepo.fetchUsersRoomBookings(userId)
-    if(data){
+  async fetchUsersRoomBookings(userId: string) {
+    let data = await this.UserRepo.fetchUsersRoomBookings(userId);
+    if (data) {
       return {
-        status:200,
-        data:data
-      }
-    }else{
+        status: 200,
+        data: data,
+      };
+    } else {
       return {
-        status:400,
-        message:"failed to fetch data"
-      }
+        status: 400,
+        message: "failed to fetch data",
+      };
     }
-}
+  }
 }
 
 export default UserUseCase;

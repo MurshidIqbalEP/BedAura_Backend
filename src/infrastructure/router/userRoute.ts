@@ -33,11 +33,9 @@ userRoute.post(
   }
 );
 
-userRoute.post("/logOut",
-  (req: Request, res: Response, next: NextFunction) => {
-    userController.logOut(req, res, next);
-  }
-);
+userRoute.post("/logOut", (req: Request, res: Response, next: NextFunction) => {
+  userController.logOut(req, res, next);
+});
 
 userRoute.post(
   "/verify-otp",
@@ -52,8 +50,6 @@ userRoute.post(
     userController.verify_ForgetOtp(req, res, next);
   }
 );
-
-
 
 userRoute.post(
   "/resend-otp",
@@ -158,7 +154,7 @@ userRoute.post(
   (req: Request, res: Response, next: NextFunction) => {
     userController.bookRoom(req, res, next);
   }
-)
+);
 
 userRoute.get(
   "/getbookings/:userId",
@@ -166,109 +162,108 @@ userRoute.get(
   (req: Request, res: Response, next: NextFunction) => {
     userController.fetchBookings(req, res, next);
   }
-)
+);
 
 userRoute.post(
   "/changePassword",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.changePassword(req, res, next);
   }
-)
+);
 
 userRoute.get(
   "/fetchWallet/:userId",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.fetchWallet(req, res, next);
   }
-)
+);
 
 userRoute.get(
   "/fetchReviews/:roomId",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.fetchReviews(req, res, next);
   }
-)
+);
 
 userRoute.post(
   "/postReview",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.postReview(req, res, next);
   }
-)
+);
 
 userRoute.post(
   "/addMessage",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
-    
-    
+  (req: Request, res: Response, next: NextFunction) => {
     userController.addMessage(req, res, next);
   }
-)
+);
 
 userRoute.get(
   "/fetchMessages",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.fetchMessages(req, res, next);
   }
-)
+);
 
 userRoute.get(
   "/fetchContacts",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.fetchContacts(req, res, next);
   }
-)
+);
 
 userRoute.get(
   "/fetchOwnerDetails",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.fetchOwnerDetails(req, res, next);
   }
-)
+);
 
-userRoute.post("/cancelBooking",
+userRoute.post(
+  "/cancelBooking",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.cancelBooking(req, res, next);
   }
-)
+);
 
-userRoute.get("/checkBookingValid",
+userRoute.get(
+  "/checkBookingValid",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.checkBookingValid(req, res, next);
   }
-)
+);
 
-userRoute.post("/walletRoomBooking",
+userRoute.post(
+  "/walletRoomBooking",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.walletRoomBooking(req, res, next);
   }
-)
+);
 
-userRoute.get("/fetchUserPieChartData",
+userRoute.get(
+  "/fetchUserPieChartData",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.fetchUserPieChartData(req, res, next);
   }
-)
+);
 
-userRoute.get("/fetchUsersRoomBookings",
+userRoute.get(
+  "/fetchUsersRoomBookings",
   userAuth,
-  (req: Request, res: Response, next: NextFunction) => {  
+  (req: Request, res: Response, next: NextFunction) => {
     userController.fetchUsersRoomBookings(req, res, next);
   }
-)
-
-
-
-
+);

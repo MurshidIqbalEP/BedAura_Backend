@@ -96,7 +96,7 @@ class UserController {
       console.log("refresh token" + "-----" + refreshToken);
       console.log(user.data);
 
-      res.cookie('hy', 'testig');
+      res.cookie("hy", "testig");
 
       res.cookie("refreshtoken", refreshToken, {
         httpOnly: true,
@@ -123,8 +123,8 @@ class UserController {
         return res.sendStatus(400); // Unauthorized
       }
       const result = await this.UserUseCase.refreshTokenUseCase(refreshToken);
-      console.log("new AccessToken----"+result.newAccessToken );
-      
+      console.log("new AccessToken----" + result.newAccessToken);
+
       return res
         .status(result.status)
         .json({ accessToken: result.newAccessToken });
@@ -209,9 +209,9 @@ class UserController {
       console.log(userId);
 
       const coordinates = JSON.parse(req.body.coordinates);
-      const additionalOptions = JSON.parse(req.body.additionalOptions || '[]'); 
-      
-      const images = req.body.images; 
+      const additionalOptions = JSON.parse(req.body.additionalOptions || "[]");
+
+      const images = req.body.images;
       // If the images come in as a single item, ensure it's treated as an array
       const imagesArray = Array.isArray(images) ? images : [images];
       const roomData = {
@@ -269,7 +269,7 @@ class UserController {
       } catch (parseError) {
         return res.status(400).json({ error: "Invalid coordinates format" });
       }
-      const additionalOptions = JSON.parse(req.body.additionalOptions || '[]'); 
+      const additionalOptions = JSON.parse(req.body.additionalOptions || "[]");
       const images = req.body.images; // Multer will handle this as an array automatically
 
       // If the images come in as a single item, ensure it's treated as an array
@@ -348,14 +348,22 @@ class UserController {
         10
       );
 
-      const search = req.query.search || '';
-      const filters = req.query.filters ? JSON.parse(req.query.filters as string) : {};
-      const sort = req.query.sort || '';
+      const search = req.query.search || "";
+      const filters = req.query.filters
+        ? JSON.parse(req.query.filters as string)
+        : {};
+      const sort = req.query.sort || "";
 
-      
       const skip = (page - 1) * limit;
 
-      let response = await this.UserUseCase.fetchAllRooms(page, limit, skip, search as string, filters, sort as string);
+      let response = await this.UserUseCase.fetchAllRooms(
+        page,
+        limit,
+        skip,
+        search as string,
+        filters,
+        sort as string
+      );
       return res.status(response?.status ?? 500).json(response?.data);
     } catch (error) {
       next(error);
@@ -407,7 +415,7 @@ class UserController {
     try {
       const { token, roomId, userId, formData } = req.body;
       console.log(token, roomId, userId, formData);
-      
+
       let response = await this.UserUseCase.bookRoom(
         token,
         roomId,
@@ -540,64 +548,74 @@ class UserController {
     }
   }
 
-  async cancelBooking(req: Request, res: Response, next: NextFunction){
+  async cancelBooking(req: Request, res: Response, next: NextFunction) {
     try {
-       const {room} = req.body
-      let response = await this.UserUseCase.cancelBooking(room)
-    return res.status(response.status).json(response.message)
-       
+      const { room } = req.body;
+      let response = await this.UserUseCase.cancelBooking(room);
+      return res.status(response.status).json(response.message);
     } catch (error) {
       next(error);
     }
   }
 
-  async checkBookingValid(req: Request, res: Response, next: NextFunction){
+  async checkBookingValid(req: Request, res: Response, next: NextFunction) {
     try {
-       const {roomId,checkIn,checkOut} = req.query;
-       const checkInDate = new Date(checkIn as string);
-    const checkOutDate = new Date(checkOut as string);
+      const { roomId, checkIn, checkOut } = req.query;
+      const checkInDate = new Date(checkIn as string);
+      const checkOutDate = new Date(checkOut as string);
 
-      let response = await this.UserUseCase.checkBookingDateValid(roomId as string,checkInDate,checkOutDate)
+      let response = await this.UserUseCase.checkBookingDateValid(
+        roomId as string,
+        checkInDate,
+        checkOutDate
+      );
 
-      
-    return res.status(response.status).json(response)
-       
+      return res.status(response.status).json(response);
     } catch (error) {
       next(error);
     }
   }
 
-  async walletRoomBooking(req: Request, res: Response, next: NextFunction){
+  async walletRoomBooking(req: Request, res: Response, next: NextFunction) {
     try {
-      const {roomId,userId,formData} = req.body;
-     let response = await this.UserUseCase.walletRoomBooking(roomId,userId,formData)
-     return res.status(response.status).json(response)
-      
-   } catch (error) {
-     next(error);
-   }
+      const { roomId, userId, formData } = req.body;
+      let response = await this.UserUseCase.walletRoomBooking(
+        roomId,
+        userId,
+        formData
+      );
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
   }
 
-  async fetchUserPieChartData(req: Request, res: Response, next: NextFunction){
+  async fetchUserPieChartData(req: Request, res: Response, next: NextFunction) {
     try {
-      const {userId} = req.query;
-     let response = await this.UserUseCase.fetchUserPieChartData(userId as string)
-     return res.status(response.status).json(response)
-      
-   } catch (error) {
-     next(error);
-   }
+      const { userId } = req.query;
+      let response = await this.UserUseCase.fetchUserPieChartData(
+        userId as string
+      );
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
   }
 
-  async fetchUsersRoomBookings(req: Request, res: Response, next: NextFunction){
+  async fetchUsersRoomBookings(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const {userId} = req.query;
-     let response = await this.UserUseCase.fetchUsersRoomBookings(userId as string)
-     return res.status(response.status).json(response)
-      
-   } catch (error) {
-     next(error);
-   }
+      const { userId } = req.query;
+      let response = await this.UserUseCase.fetchUsersRoomBookings(
+        userId as string
+      );
+      return res.status(response.status).json(response);
+    } catch (error) {
+      next(error);
+    }
   }
 }
 
